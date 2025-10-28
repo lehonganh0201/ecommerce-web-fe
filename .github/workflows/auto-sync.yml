@@ -1,0 +1,39 @@
+name: Sync to Repo2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo1
+        uses: actions/checkout@v4
+
+      - name: Setup Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone Repo2
+        run: |
+          git clone https://x-access-token:${{ secrets.REPO2_TOKEN }}@github.com/lehonganh0201/DATN-LeHongAnh-2022DHKTPM01-FE.git repo2
+
+      - name: Copy files from Repo1 to Repo2
+        run: |
+          rsync -av --exclude='.git' ./ repo2/
+
+      - name: Commit and push changes
+        run: |
+          cd repo2
+          COMMIT_MSG=$(git -C .. log -1 --pretty=%B)
+          git add .
+          if git diff-index --quiet HEAD; then
+            echo "No changes to commit."
+          else
+            git commit -m "$COMMIT_MSG"
+            git push origin main
+          fi
