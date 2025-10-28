@@ -27,7 +27,7 @@ jobs:
           rsync -av \
             --exclude='.git' \
             --exclude='.github' \
-            ./ repo2/
+            ./ DATN-LeHongAnh-2022DHKTPM01-FE/
 
       - name: Commit and push changes
         run: |
