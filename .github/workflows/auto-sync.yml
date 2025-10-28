@@ -15,20 +15,23 @@ jobs:
 
       - name: Setup Git
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "lehonganh0201"
+          git config --global user.email "lehonganh0201@users.noreply.github.com"
 
       - name: Clone Repo2
         run: |
-          git clone https://x-access-token:${{ secrets.REPO2_TOKEN }}@github.com/lehonganh0201/DATN-LeHongAnh-2022DHKTPM01-FE.git repo2
+          git clone https://x-access-token:${{ secrets.REPO2_TOKEN }}@github.com/lehonganh0201/DATN-LeHongAnh-2022DHKTPM01-FE.git DATN-LeHongAnh-2022DHKTPM01-FE
 
       - name: Copy files from Repo1 to Repo2
         run: |
-          rsync -av --exclude='.git' ./ repo2/
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.github' \
+            ./ repo2/
 
       - name: Commit and push changes
         run: |
-          cd repo2
+          cd DATN-LeHongAnh-2022DHKTPM01-FE
           COMMIT_MSG=$(git -C .. log -1 --pretty=%B)
           git add .
           if git diff-index --quiet HEAD; then
