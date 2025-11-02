@@ -13,7 +13,7 @@ const CategoryListItem = ({ category, onView, onEdit, onDelete }) => {
       <td className="px-4 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <img
-            src={category.imageUrl}
+            src={category.image}
             className="h-10 w-10 border border-none rounded-xl"
             alt={category.name}
           />

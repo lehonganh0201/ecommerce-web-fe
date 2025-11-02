@@ -25,7 +25,7 @@ export const getCategories = async (data) => {
 
 export const uploadImageCategory = async (categoryId, file) => {
   const formData = new FormData();
-  formData.append("catalogId", file);
+  formData.append("file", file);
   try {
     const res = await request(axiosPrivate, {
       method: "PUT",
@@ -82,7 +82,7 @@ export const deleteCategory = async (categoryId) => {
       method: "DELETE",
       url: `/categories/${categoryId}`,
     });
-    return res.data;
+    return res;
   } catch (error) {
     console.error("Delete category error:", error.response?.data);
     throw error;

@@ -174,7 +174,7 @@ const CategoryAdminPage = () => {
   const handleDeleteConfirm = async () => {
     try {
       const res = await deleteCategory(selectedCategory.id);
-      if (res.status == "SUCCESS") {
+      if (res.status === 204) {
         toast.success("Xóa danh mục thành công!");
         setShowDeleteModal(false);
         getAllCategories(apiPage, itemsPerPage, searchQuery);
