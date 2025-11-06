@@ -4,7 +4,7 @@ import "aos/dist/aos.css";
 import { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
 import { useRoutes } from "react-router-dom";
-import Home from "@/pages/Home";
+import Home from "./pages/home/Home";
 import Auth from "./pages/auth/Auth";
 import VerifyOTP from "./components/auth/verifyOTP/VerifyOTP";
 import CategoryAdminPage from "./pages/admin/CategoryAdminPage";
