@@ -11,6 +11,7 @@ import CategoryAdminPage from "./pages/admin/CategoryAdminPage";
 import ContactPage from "./pages/contact/ContactPage";
 import BlogList from "./components/blog/BlogList";
 import BlogDetail from "./components/blog/BlogDetail";
+import MarketSystemPage from "./pages/market-system/MarketSystemPage";
 import SearchResultPage from "./pages/blog/SearchResultPage";
 
 function App() {
@@ -40,6 +41,10 @@ function App() {
     {
       path: "/contact",
       element: <ContactPage/>
+    },
+    {
+      path: "/market-system",
+      element: <MarketSystemPage/>
     },
     {
       path: "/auth",
