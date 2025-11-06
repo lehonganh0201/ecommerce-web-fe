@@ -8,6 +8,9 @@ import Home from "./pages/home/Home";
 import Auth from "./pages/auth/Auth";
 import VerifyOTP from "./components/auth/verifyOTP/VerifyOTP";
 import CategoryAdminPage from "./pages/admin/CategoryAdminPage";
+import BlogList from "./components/blog/BlogList";
+import BlogDetail from "./components/blog/BlogDetail";
+import SearchResultPage from "./pages/blog/SearchResultPage";
 
 function App() {
   useEffect(() => {
@@ -20,6 +23,18 @@ function App() {
     {
       path: "/",
       element: <Home />,
+    },
+    {
+      path: "/blog",
+      element: <BlogList/>
+    },
+    {
+      path: '/blog/:slug',
+      element:<BlogDetail/>
+    },
+    {
+      path: "/search-blog",
+      element: <SearchResultPage/>
     },
     {
       path: "/auth",
