@@ -8,28 +8,36 @@ import { PiHandCoinsFill } from "react-icons/pi";
 import { FaHeart } from "react-icons/fa6";
 
 import "./RightSession.scss";
-import { formatNumber } from "@/utils/function";
+import { formatNumber } from "@/utils/function/validateTime";
 import { addToCart } from "@/apis/cart";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setOrderList, setQuantityOfCart } from "@/store/orderSlice";
+import { getVariantsByProductId } from "@/apis/variant";
 
 const RightSession = ({ product }) => {
   const [infoSelect, setInfoSelect] = useState({
     type: 0,
     quantity: "1",
   });
-  console.log('product session',product)
-  const variantStock = product.variants
+  const [variants, setVariants] = useState([]);
+
+  useEffect(() => {
+  const fetchVariants = async () => {
+    const res = await getVariantsByProductId(product.id);
+    setVariants(res.data || []);
+  };
+
+  if (product?.id) fetchVariants();
+}, [product?.id]);
   const [isLike, setIsLike] = useState(false);
   const [quantity, setQuantity] = useState(1)
   const dispatch = useDispatch();
   const orderListProducts = useSelector((state) => state.order.orderList || []);
   const quantityOfCart = useSelector((state) => state.order.quantityOfCart);
   console.log('product', product)
-    console.log('prct', variantStock)
 
   const benefits = [
     {
@@ -169,7 +177,7 @@ const handleClickAddToCart = async (e) => {
           {/* {formatNumber(product.price * (1 - product.discount / 100))} đ */}
           {infoSelect?.price
             ? formatNumber(infoSelect?.price)
-            : formatNumber(product?.price)}{" "}
+            : formatNumber(product?.basePrice)}{" "}
           đ
         </span>
         {/* <span className="right-session__price__real">
@@ -205,7 +213,7 @@ const handleClickAddToCart = async (e) => {
         </div>
       </div>
       <div className="right-session__quantity-group">
-        <p>Tồn kho: {infoSelect?.stock ?? product?.variants[0]?.stock}</p> 
+        <p>Tồn kho: {infoSelect?.stock ?? variants[0]?.stockQuantity}</p> 
         <p>Số lượng</p>
         <div className="right-session__quantity-group__quantity">
           <div className="right-session__quantity-group__quantity-buttons">

@@ -7,7 +7,7 @@ import axios from "axios";
 import {
   getAvgRatingByProductId,
   getReviewsByProductId,
-} from "@/api/review";
+} from "@/apis/review";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 

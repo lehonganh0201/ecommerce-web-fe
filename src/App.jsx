@@ -13,6 +13,7 @@ import BlogList from "./components/blog/BlogList";
 import BlogDetail from "./components/blog/BlogDetail";
 import MarketSystemPage from "./pages/market-system/MarketSystemPage";
 import SearchResultPage from "./pages/blog/SearchResultPage";
+import DetailProduct from "./pages/product/DetailProduct/DetailProduct";
 
 function App() {
   useEffect(() => {
@@ -25,6 +26,10 @@ function App() {
     {
       path: "/",
       element: <Home />,
+    },
+    {
+      path: "/product/:id",
+      element: <DetailProduct />,
     },
     {
       path: "/blog",

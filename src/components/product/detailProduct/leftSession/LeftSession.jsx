@@ -57,7 +57,7 @@ const LeftSession = ({ product }) => {
                 indexImage === index ? "active" : ""
               }`}
             >
-              <img src={image.imageUrl} alt="product" />
+              <img src={image.image} alt="product" />
             </div>
           ))}
       </div>
@@ -92,7 +92,7 @@ const LeftSession = ({ product }) => {
           {product?.images?.map((image, index) => (
             <SwiperSlide key={index}>
               <div className="swiper-image_item">
-                <img src={image.imageUrl} alt="product" />
+                <img src={image.image} alt="product" />
               </div>
             </SwiperSlide>
           ))}
