@@ -30,6 +30,20 @@ export const getVariantsByProductId = async (productId) => {
     throw err;
   }
 };
+
+export const getProductByVariantId = async (variantId) => {
+  try {
+    const response = await request(axiosPublic, {
+      method: "GET",
+      url: `/variants/${variantId}`,
+    });
+    return response.data;
+  } catch (error) {
+    console.log(`Error fetching product by variant ID ${variantId}:`, error);
+    throw new Error(`Failed to fetch product by variant ID ${variantId}`);
+  }
+};
+
 export const deleteVariantById = async (id) => {
   try {
     const response = await request(axiosPrivate, {

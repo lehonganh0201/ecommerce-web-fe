@@ -4,11 +4,17 @@ import "aos/dist/aos.css";
 import { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
 import { useRoutes } from "react-router-dom";
-import Home from "@/pages/Home";
+import Home from "./pages/home/Home";
 import Auth from "./pages/auth/Auth";
 import VerifyOTP from "./components/auth/verifyOTP/VerifyOTP";
 import CategoryAdminPage from "./pages/admin/CategoryAdminPage";
 import ProductAdminPage from "./pages/admin/ProductAdminPage";
+import ContactPage from "./pages/contact/ContactPage";
+import BlogList from "./components/blog/BlogList";
+import BlogDetail from "./components/blog/BlogDetail";
+import MarketSystemPage from "./pages/market-system/MarketSystemPage";
+import SearchResultPage from "./pages/blog/SearchResultPage";
+import DetailProduct from "./pages/product/DetailProduct/DetailProduct";
 
 function App() {
   useEffect(() => {
@@ -21,6 +27,30 @@ function App() {
     {
       path: "/",
       element: <Home />,
+    },
+    {
+      path: "/product/:id",
+      element: <DetailProduct />,
+    },
+    {
+      path: "/blog",
+      element: <BlogList/>
+    },
+    {
+      path: '/blog/:slug',
+      element:<BlogDetail/>
+    },
+    {
+      path: "/search-blog",
+      element: <SearchResultPage/>
+    },
+    {
+      path: "/contact",
+      element: <ContactPage/>
+    },
+    {
+      path: "/market-system",
+      element: <MarketSystemPage/>
     },
     {
       path: "/auth",
