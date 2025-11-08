@@ -18,9 +18,8 @@ const ProductViewModal = ({ product, onClose, onEdit, token }) => {
     try {
       const res = await getProductByProductId(productId);
       const variants = await getVariantsByProductId(productId);
-      const productDetail = { ...res.data, variants: variants.data };
+      const productDetail = { ...res.data.data, variants: variants.data };
       setProductView(productDetail);
-      console.log("product detail:", productDetail);
     } catch (err) {
       toast.error(
         `Lỗi: ${err.message} \n Nguyên nhân: ${err.response?.statusText || ""}`

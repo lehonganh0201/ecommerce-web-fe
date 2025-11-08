@@ -49,9 +49,6 @@ const CategoryFormModal = ({
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		onSubmit(formData, imageFile);
-		console.log("imageFile", imageFile);
-		console.log("formDatamodalmodal", formData);
-		console.log("imagePreview", imagePreview);
 	};
 
 	if (!isOpen) return null;

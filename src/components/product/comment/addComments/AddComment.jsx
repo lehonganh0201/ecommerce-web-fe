@@ -24,7 +24,6 @@ const AddComment = ({ setIsShowAddComment, productId }) => {
       };
 
       const response = await createReview(data);
-      console.log("Đánh giá đã được gửi:", response);
       setComment("");
       setRating(0);
       setIsShowAddComment(false);

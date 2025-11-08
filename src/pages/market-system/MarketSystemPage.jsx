@@ -17,7 +17,6 @@ const MarketSystemPage = () => {
     const [currentMapUrl, setCurrentMapUrl] = useState(
         "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.904274586086!2d105.81330277495535!3d21.03651588061473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab2bddedd8ff%3A0xde7c4fb8e272fabc!2zVG_DoCBuaMOgIExBREVDTw!5e0!3m2!1sde!2sde!4v1745230802774!5m2!1sde!2sde"
     );
-    console.log('currentMapUrl', currentMapUrl);
 
 
     const updateDistricts = () => {

@@ -59,7 +59,6 @@ const ProductItem = ({ product }) => {
       };
 
       const response = await addToCart(data);
-      // console.log("Product added to cart:", response);
       dispatch(setQuantityOfCart(quantityOfCart + 1));
       toast.success("Thêm sản phẩm vào giỏ hàng thành công");
     } catch (error) {

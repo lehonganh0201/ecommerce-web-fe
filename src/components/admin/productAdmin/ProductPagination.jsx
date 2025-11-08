@@ -18,11 +18,6 @@ const ProductPagination = ({
   hasNext,
   itemName = "items",
 }) => {
-  console.log("totalPage: ", totalPages);
-  console.log("indexOfFirstItemProduct: ", indexOfFirstItemProduct);
-  console.log("indexOfLastItem: ", indexOfLastItem);
-  console.log("contentProduct:", contentProduct);
-  console.log("indexOfFirstItemOrder: ", indexOfFirstItemOrder);
   const getPaginationItems = () => {
     const maxPagesToShow = 6;
     const pages = [];

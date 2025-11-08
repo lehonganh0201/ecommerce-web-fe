@@ -47,7 +47,6 @@ const LoginForm = ({ setIsLogin }) => {
       console.error("Error message:", error.message);
 
       if (axios.isAxiosError(error) && error.response) {
-        console.log("Handling Axios error with status:", error.response.status);
         const { status, data } = error.response;
         switch (status) {
           case 400:
@@ -80,7 +79,6 @@ const LoginForm = ({ setIsLogin }) => {
         error.response.data &&
         error.response.data.status === "ERROR"
       ) {
-        console.log("Handling custom error format");
         const errorData = error.response.data.data;
         if (
           typeof errorData === "string" &&
@@ -104,7 +102,6 @@ const LoginForm = ({ setIsLogin }) => {
           toast.error("Lỗi không xác định từ máy chủ, vui lòng thử lại!");
         }
       } else {
-        console.log("Handling fallback error");
         toast.error("Không thể kết nối đến máy chủ, vui lòng kiểm tra mạng!");
       }
     }

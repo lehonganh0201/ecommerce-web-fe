@@ -146,10 +146,6 @@ const ProductAdminPage = () => {
 
   const handleToggleActive = async (product) => {
     try {
-      console.log("data change status:", {
-        id: product.id,
-        status: !product.isActive,
-      });
       const res = await updateStatusProduct(product.id, !product.isActive);
       toast.success("Thay đổi trạng thái thành công!");
       getAllProducts(apiPage, itemsPerPage, searchQuery);
@@ -180,10 +176,6 @@ const ProductAdminPage = () => {
       imageFiles.forEach((file) => {
         formdata.append("images", file);
       });
-    }
-
-    for (let pair of formdata.entries()) {
-      console.log(pair[0] + ": " + pair[1]);
     }
 
     try {

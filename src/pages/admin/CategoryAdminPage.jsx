@@ -53,7 +53,6 @@ const CategoryAdminPage = () => {
     try {
       const data = { sortDirection, page, size, searchKeyword: search };
       const res = await getCategories(data);
-      // console.log("res", res.data.data.content);
       setAllCate(res.data);
       setCategories(res.data);
       setApiPage(res.meta.currentPage);
@@ -75,7 +74,6 @@ const CategoryAdminPage = () => {
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
-    // console.log("searchquery: ", searchQuery);
   };
 
   const getNewCategoryData = () => ({
@@ -121,7 +119,6 @@ const CategoryAdminPage = () => {
   };
 
   const handleFormSubmit = async (formData, imageFile) => {
-    console.log("formDATAAA:", formData);
     try {
       const data = new FormData();
       data.append("name", formData.name);

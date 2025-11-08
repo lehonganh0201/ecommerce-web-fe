@@ -235,7 +235,6 @@ const HeaderDesktop = () => {
     const fetchProductOfCart = async () => {
       try {
         const response = await getProductsInCart();
-        // console.log("Sản phẩm trong giỏ hàng:", response.data.items);
         dispatch(setQuantityOfCart(response.data.items.length));
       } catch (error) {
         console.log(error);

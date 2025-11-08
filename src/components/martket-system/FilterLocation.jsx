@@ -16,8 +16,6 @@ const FilterLocation = ({
     locations,
     setCurrentMapUrl
 }) => {
-    console.log('locations', locations);
-    console.log('district',districts);
     
     return (
         

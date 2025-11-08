@@ -39,9 +39,6 @@ const InformationDetail = ({
 
         setRate(ratingAvgRes.data.averageRating || 0);
         setComments(reviewsRes.data.data);
-
-        console.log("Rating Average:", ratingAvgRes);
-        console.log("Comments:", reviewsRes);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           switch (error.response.status) {

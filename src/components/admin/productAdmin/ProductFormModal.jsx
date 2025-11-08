@@ -47,8 +47,7 @@ const ProductFormModal = ({
       const fetchProduct = async () => {
         try {
           const res = await getProductByProductId(productId);
-          const product = res.data;
-          console.log("edit product:", product);
+          const product = res.data.data;
           setFormData({
             id: product.id,
             name: product.name || "",

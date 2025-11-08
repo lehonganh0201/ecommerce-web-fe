@@ -38,10 +38,6 @@ const LeftSession = ({ product }) => {
     }
   }, [updateNavigation]);
 
-  // useEffect(() => {
-  //   console.log("indexImage", indexImage);
-  // }, [indexImage]);
-
   return (
     <div className="left-session">
       <div className="left-session__left-images">

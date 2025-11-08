@@ -10,7 +10,6 @@ const CategoryForm = ({
 	handleFileChange,
 	imagePreview,
 }) => {
-	console.log("formData cate form", formData);
 	return (
 		<form onSubmit={onSubmit}>
 			<div className="mb-4">

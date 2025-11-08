@@ -37,7 +37,6 @@ const RightSession = ({ product }) => {
   const dispatch = useDispatch();
   const orderListProducts = useSelector((state) => state.order.orderList || []);
   const quantityOfCart = useSelector((state) => state.order.quantityOfCart);
-  console.log('product', product)
 
   const benefits = [
     {
