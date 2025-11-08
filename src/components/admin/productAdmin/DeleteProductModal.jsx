@@ -3,7 +3,6 @@ import { X } from "lucide-react";
 
 const DeleteProductModal = ({ isOpen, onClose, onConfirm, product }) => {
   if (!isOpen || !product) return null;
-  console.log("product", product);
 
   return (
     <div className="fixed inset-0 bg-[#0000009e] bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -24,14 +23,16 @@ const DeleteProductModal = ({ isOpen, onClose, onConfirm, product }) => {
           </p>
 
           <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-            <div className="flex-shrink-0 h-12 w-12 rounded-lg overflow-hidden">
-              <img
-                src={product.images[0].image}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="ml-3">
+            {product.images && product.images.length > 0 && (
+              <div className="flex-shrink-0 h-12 w-12 rounded-lg overflow-hidden">
+                <img
+                  src={product.images[0]?.image || product.images[0]?.imageUrl || ""}
+                  alt={product.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+            <div className={product.images && product.images.length > 0 ? "ml-3" : ""}>
               <div className="font-medium">{product.name}</div>
               <div className="text-sm text-gray-500">{product.id}</div>
             </div>
