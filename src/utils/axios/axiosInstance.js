@@ -94,7 +94,7 @@ axiosPrivate.interceptors.response.use(
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("roles");
-        window.location.href = "/auth";
+        // window.location.href = "/auth";
         return Promise.reject(error);
       } finally {
         isRefreshing = false;
@@ -105,7 +105,7 @@ axiosPrivate.interceptors.response.use(
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("roles");
-      window.location.href = "/auth";
+      // window.location.href = "/auth";
       return Promise.reject(error);
     }
 

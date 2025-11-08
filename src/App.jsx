@@ -8,6 +8,7 @@ import Home from "@/pages/Home";
 import Auth from "./pages/auth/Auth";
 import VerifyOTP from "./components/auth/verifyOTP/VerifyOTP";
 import CategoryAdminPage from "./pages/admin/CategoryAdminPage";
+import ProductAdminPage from "./pages/admin/ProductAdminPage";
 
 function App() {
   useEffect(() => {
@@ -28,6 +29,10 @@ function App() {
     {
       path: "/verifyOTP",
       element: <VerifyOTP />,
+    },
+    {
+      path: "/admin/products",
+      element: <ProductAdminPage />,
     },
     {
       path: "/admin/categories",
