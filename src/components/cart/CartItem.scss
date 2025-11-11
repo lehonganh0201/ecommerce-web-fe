@@ -1,0 +1,213 @@
+.card-item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  border-radius: 8px;
+  padding: 20px;
+
+  .card-item__left {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+
+    input {
+      width: 20px;
+      height: 20px;
+    }
+
+    img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .card-item__left-info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      h3 {
+        font-size: 20px;
+        font-weight: 500;
+      }
+
+      p {
+        font-size: 15px;
+        font-weight: 400;
+        color: black;
+      }
+
+      .price {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+
+        .sale {
+          font-size: 15px;
+          font-weight: 500;
+          color: #ff6347;
+        }
+
+        .real {
+          font-size: 15px;
+          font-weight: 500;
+          color: #a1a1a1;
+          text-decoration: line-through;
+        }
+      }
+
+      .price__res {
+        display: none;
+      }
+
+      .quantity {
+  display: flex;
+  align-items: center;
+  gap: 10px;  /* Khoảng cách giữa các phần tử */
+
+  /* Điều chỉnh kích thước của các button */
+  button {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    background-color: #f2f2f2;  /* Màu nền sáng cho nút */
+    border-radius: 50%;  /* Tạo hiệu ứng nút tròn */
+    cursor: pointer;
+    font-size: 16px;  /* Giảm kích thước chữ cho nút */
+    font-weight: 600;
+    transition: background-color 0.3s ease;  /* Thêm hiệu ứng khi hover */
+  }
+
+  /* Khi hover vào nút */
+  button:hover {
+    background-color: #ddd;  /* Màu nền khi hover */
+  }
+
+  /* Điều chỉnh ô input */
+  input {
+    width: 50px;  /* Kích thước cố định cho ô input */
+    height: 30px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;  /* Căn giữa số trong input */
+    font-size: 16px;
+    outline: none;  /* Loại bỏ viền khi focus */
+    transition: border-color 0.3s ease;
+  }
+
+  /* Khi focus vào ô input */
+  input:focus {
+    border-color: #5e9fdf;  /* Đổi màu viền khi focus */
+  }
+}
+
+    }
+  }
+
+  .card-item__right {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+
+    .price {
+      font-size: 20px;
+      font-weight: 500;
+      color: #ff6347;
+    }
+
+    .card-item__right-search {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: end;
+      max-width: 100px;
+
+      .icon-cancel {
+        font-size: 30px;
+        color: #ff6347;
+        cursor: pointer;
+      }
+
+      .search {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-size: 15px;
+        cursor: pointer;
+
+        .icon-down {
+          font-size: 30px;
+        }
+        &:hover {
+          color: #ff6347;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 1082.98px) {
+    .card-item__left {
+      .card-item__left-info {
+        .price {
+          display: none;
+        }
+        .price__res {
+          display: block;
+          font-size: 20px;
+          font-weight: 500;
+          color: #ff6347;
+        }
+      }
+    }
+
+    .card-item__right {
+      .price {
+        display: none;
+      }
+    }
+  }
+
+  @media screen and (max-width: 822.98px) {
+    .card-item__left {
+      img {
+        width: 100px;
+        height: 100px;
+      }
+
+      .card-item__left-info {
+        h3 {
+          font-size: 15px;
+        }
+
+        .price__res {
+          font-size: 15px;
+        }
+      }
+    }
+
+    .card-item__right {
+      .card-item__right-search {
+        .search {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+
+  @media screen and (max-width: 499.98px) {
+    .card-item__right {
+      .card-item__right-search {
+        .search {
+          display: none;
+        }
+      }
+    }
+  }
+}

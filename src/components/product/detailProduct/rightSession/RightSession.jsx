@@ -72,7 +72,7 @@ const handleClickAddToCart = async (e) => {
   try {
     if (checkToken) {
       const data = {
-        variantId: infoSelect.variantId || product.variants[0].id,
+        variantId: infoSelect.variantId || variants[0].id,
         quantity: quantityToAdd,   // ✅ lấy theo input
       };
 

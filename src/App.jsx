@@ -16,6 +16,7 @@ import MarketSystemPage from "./pages/market-system/MarketSystemPage";
 import SearchResultPage from "./pages/blog/SearchResultPage";
 import DetailProduct from "./pages/product/DetailProduct/DetailProduct";
 import ProductsByCategory from "./pages/productsByCategory/ProductsByCategory";
+import Cart from "./pages/cart/Cart";
 
 function App() {
   useEffect(() => {
@@ -36,6 +37,10 @@ function App() {
     {
       path: "/productsByCategory/:id",
       element: <ProductsByCategory/>
+    },
+    {
+      path: "/cart",
+      element: <Cart />,
     },
     {
       path: "/blog",
