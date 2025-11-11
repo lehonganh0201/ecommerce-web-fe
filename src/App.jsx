@@ -17,6 +17,7 @@ import SearchResultPage from "./pages/blog/SearchResultPage";
 import DetailProduct from "./pages/product/DetailProduct/DetailProduct";
 import ProductsByCategory from "./pages/productsByCategory/ProductsByCategory";
 import Cart from "./pages/cart/Cart";
+import FollowingProducts from "./pages/followingProducts/FollowingProducts";
 
 function App() {
   useEffect(() => {
@@ -37,6 +38,10 @@ function App() {
     {
       path: "/productsByCategory/:id",
       element: <ProductsByCategory/>
+    },
+    {
+      path: "/followingProducts",
+      element: <FollowingProducts />,
     },
     {
       path: "/cart",
