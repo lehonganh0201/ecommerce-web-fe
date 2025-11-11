@@ -19,6 +19,7 @@ import ProductsByCategory from "./pages/productsByCategory/ProductsByCategory";
 import Cart from "./pages/cart/Cart";
 import FollowingProducts from "./pages/followingProducts/FollowingProducts";
 import Profile from "./pages/profile/Profile";
+import References from "./pages/references/References";
 
 function App() {
   useEffect(() => {
@@ -51,6 +52,10 @@ function App() {
     {
       path: "/profile",
       element: <Profile />,
+    },
+    {
+      path: "/references",
+      element: <References />,
     },
     {
       path: "/blog",

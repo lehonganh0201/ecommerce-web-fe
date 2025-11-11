@@ -46,7 +46,7 @@ export const getReferenceOrder = async (reference) => {
   try {
     const response = await request(axiosPrivate, {
       method: "GET",
-      url: `/orders/reference?reference=${reference}`,
+      url: `/orders/me?orderCode=${reference}`,
     });
     return response.data;
   } catch (error) {
