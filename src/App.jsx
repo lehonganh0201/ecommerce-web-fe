@@ -18,6 +18,7 @@ import DetailProduct from "./pages/product/DetailProduct/DetailProduct";
 import ProductsByCategory from "./pages/productsByCategory/ProductsByCategory";
 import Cart from "./pages/cart/Cart";
 import FollowingProducts from "./pages/followingProducts/FollowingProducts";
+import Profile from "./pages/profile/Profile";
 
 function App() {
   useEffect(() => {
@@ -46,6 +47,10 @@ function App() {
     {
       path: "/cart",
       element: <Cart />,
+    },
+    {
+      path: "/profile",
+      element: <Profile />,
     },
     {
       path: "/blog",
