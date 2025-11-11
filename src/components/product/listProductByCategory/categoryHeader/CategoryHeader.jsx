@@ -6,9 +6,12 @@ import "./CategoryHeader.scss";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import { GrFormPrevious, GrFormNext } from "react-icons/gr";
-import { getAllCategories } from "@/api/productAPI/category";
+import { getCategories } from "@/apis/category";
+import { useNavigate } from 'react-router-dom';
 
 const CategoryHeader = () => {
+  const navigate = useNavigate();
+
   const [categorys, setCategorys] = useState(listCategory);
   const [slidesPerView, setSlidesPerView] = useState(5);
   useEffect(() => {
@@ -20,8 +23,8 @@ const CategoryHeader = () => {
           page: 0,
           size: 10,
         };
-        const response = await getAllCategories(data);
-        setCategorys(response.data.data);
+        const response = await getCategories(data);
+        setCategorys(response.data);
       } catch (error) {
         console.log(error);
       }
@@ -85,7 +88,7 @@ const CategoryHeader = () => {
           <SwiperSlide
             className="swiper-category__item"
             key={index}
-            onClick={() => navigate(`/productsByCategory/${category.name}`)}
+            onClick={() => navigate(`/productsByCategory/${category.id}`)}
           >
             <div key={index} className="category__item">
               <div className="category__item-img">

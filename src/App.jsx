@@ -15,6 +15,7 @@ import BlogDetail from "./components/blog/BlogDetail";
 import MarketSystemPage from "./pages/market-system/MarketSystemPage";
 import SearchResultPage from "./pages/blog/SearchResultPage";
 import DetailProduct from "./pages/product/DetailProduct/DetailProduct";
+import ProductsByCategory from "./pages/productsByCategory/ProductsByCategory";
 
 function App() {
   useEffect(() => {
@@ -31,6 +32,10 @@ function App() {
     {
       path: "/product/:id",
       element: <DetailProduct />,
+    },
+    {
+      path: "/productsByCategory/:id",
+      element: <ProductsByCategory/>
     },
     {
       path: "/blog",
