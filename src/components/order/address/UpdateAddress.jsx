@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { getAddressesById, getDistricts, getProvinces, getWards, updateAddress } from "@/api/authAPI/user";
+import { getAddressesById, getDistricts, getProvinces, getWards, updateAddress } from "@/apis/user";
 import React, { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";

@@ -21,6 +21,7 @@ import FollowingProducts from "./pages/followingProducts/FollowingProducts";
 import Profile from "./pages/profile/Profile";
 import References from "./pages/references/References";
 import Search from "./pages/product/search/Search";
+import Order from "./pages/order/Order";
 
 function App() {
   useEffect(() => {
@@ -53,6 +54,10 @@ function App() {
     {
       path: "/cart",
       element: <Cart />,
+    },
+    {
+      path: "/order",
+      element: <Order/>
     },
     {
       path: "/profile",

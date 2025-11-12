@@ -51,22 +51,33 @@ export const getWards = async (districtCode) => {
 
 export const createdAddress = async (address) => {
   try {
-    const { phoneNumber, street, city, state, country, zipCode, description } =
-      address;
+    const {
+      phoneNumber,
+      street,
+      houseNumber,
+      ward,
+      district,
+      city,
+      description,
+      isDefault,
+      fullAddress,
+    } = address;
     const response = await request(axiosPrivate, {
       url: "/addresses",
       method: "POST",
       data: {
         phoneNumber,
         street,
+        houseNumber,
+        ward,
+        district,
         city,
-        state,
-        country,
-        zipCode,
         description,
+        isDefault,
+        fullAddress,
       },
     });
-    return response.data;
+    return response.data; 
   } catch (error) {
     console.error("Lỗi khi tạo địa chỉ:", error);
     throw new Error("Tạo địa chỉ không thành công");
@@ -79,7 +90,6 @@ export const getAddresses = async () => {
       url: "/addresses",
       method: "GET",
     });
-
     return response.data;
   } catch (error) {
     console.error("Lỗi khi lấy danh sách địa chỉ:", error);
@@ -93,7 +103,7 @@ export const getAddressesById = async (id) => {
       url: `/addresses/${id}`,
       method: "GET",
     });
-    return response.data;
+    return response.data; 
   } catch (error) {
     console.error("Lỗi khi lấy địa chỉ theo ID:", error);
     throw new Error("Lấy địa chỉ theo ID không thành công");
@@ -106,12 +116,13 @@ export const updateAddress = async (address) => {
       id,
       phoneNumber,
       street,
+      houseNumber,
+      ward,
+      district,
       city,
-      state,
-      country,
-      zipCode,
       description,
       isDefault,
+      fullAddress,
     } = address;
     const response = await request(axiosPrivate, {
       url: `/addresses/${id}`,
@@ -119,15 +130,16 @@ export const updateAddress = async (address) => {
       data: {
         phoneNumber,
         street,
+        houseNumber,
+        ward,
+        district,
         city,
-        state,
-        country,
-        zipCode,
         description,
         isDefault,
+        fullAddress,
       },
     });
-    return response.data;
+    return response.data; 
   } catch (error) {
     console.error("Lỗi khi cập nhật địa chỉ:", error);
     throw new Error("Cập nhật địa chỉ không thành công");
@@ -140,6 +152,7 @@ export const deleteAddress = async (id) => {
       url: `/addresses/${id}`,
       method: "DELETE",
     });
+    // Response có thể là thông báo thành công hoặc AddressResponse đã xóa (tùy backend), sử dụng để remove item khỏi list UI
     return response.data;
   } catch (error) {
     console.error("Lỗi khi xóa địa chỉ:", error);

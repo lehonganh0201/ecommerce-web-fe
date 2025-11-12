@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 
 import "./RightOrder.scss";
 import { useSelector } from "react-redux";
-import { formatNumber } from "@/utils/function";
+import { formatNumber } from "@/utils/function/validateTime";
 import { GrFormPrevious } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
-import { createdOrder } from "@/api/orderAPI/order";
+import { createdOrder } from "@/apis/order";
 import { toast } from "react-toastify";
 
 const RightOrder = ({ orderInformation, setOrderInformation }) => {

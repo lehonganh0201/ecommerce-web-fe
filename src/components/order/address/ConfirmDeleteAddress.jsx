@@ -1,5 +1,5 @@
 /* eslint-disable*/
-import { deleteAddress } from "@/api/authAPI/user";
+import { deleteAddress } from "@/apis/user";
 import React from "react";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";

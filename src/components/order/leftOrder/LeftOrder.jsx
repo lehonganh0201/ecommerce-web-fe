@@ -10,7 +10,7 @@ import { FaPencilAlt } from "react-icons/fa";
 import { ImBin } from "react-icons/im";
 
 import "./LeftOrder.scss";
-import { getAddresses } from "@/api/authAPI/user";
+import { getAddresses } from "@/apis/user";
 const LeftOrder = ({
   setIsShowAddAddress,
   isShowAddAddress,
@@ -31,8 +31,8 @@ const LeftOrder = ({
       try {
         const response = await getAddresses();
         setAddresses(response.data);
-        if (response.data.length > 0) {
-          setAddressOrder(response.data[0]);
+        if (response.length > 0) {
+          setAddressOrder(response[0]);
         }
       } catch (error) {
         console.error("Error fetching addresses:", error);
@@ -48,13 +48,28 @@ const LeftOrder = ({
       addressId: address.id,
     });
   };
+
+  const renderFullAddress = (address) => {
+    const parts = [];
+    if (address.houseNumber) parts.push(address.houseNumber);
+    if (address.street) parts.push(address.street);
+    if (address.ward) parts.push(address.ward);
+    if (address.district) parts.push(address.district);
+    if (address.city) parts.push(address.city);
+    return parts.join(", ");
+  };
+
+  const renderDescription = (address) => {
+    return address.description ? `${address.description}, ` : "";
+  };
+
   return (
     <div className="leftOrder">
       <h1>Địa chỉ nhận hàng</h1>
       <div className="leftOrder__address">
         {addresses?.length > 0 ? (
           addresses?.map((address, index) => (
-            <div key={index} className="leftOrder__address-item">
+            <div key={address.id} className="leftOrder__address-item">
               <input
                 type="radio"
                 name="address"
@@ -68,11 +83,12 @@ const LeftOrder = ({
                   </p>
                   <p>{address?.phoneNumber}</p>
                   <p>
-                    {address?.description && `${address?.description},`}{" "}
-                    {address?.street && `${address?.street},`}{" "}
-                    {address?.city && `${address?.city},`}{" "}
-                    {address?.country && `${address?.country}`}
+                    {renderDescription(address)}
+                    {renderFullAddress(address)}
                   </p>
+                  {address.isDefault && (
+                    <span className="text-green-600 font-semibold"> (Mặc định)</span>
+                  )}
                 </div>
                 <div className="items-center gap-2 hidden group-hover:flex">
                   <FaPencilAlt
@@ -131,9 +147,7 @@ const LeftOrder = ({
               <div className="detailt-item">
                 <p>
                   {addressOrder?.description && `${addressOrder?.description},`}{" "}
-                  {addressOrder?.street && `${addressOrder?.street},`}{" "}
-                  {addressOrder?.city && `${addressOrder?.city},`}{" "}
-                  {addressOrder?.country && `${addressOrder?.country}`}
+                  {renderFullAddress(addressOrder)}
                 </p>
               </div>
             </div>
