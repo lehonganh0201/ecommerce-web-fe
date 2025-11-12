@@ -122,7 +122,7 @@ const handleClickAddToCart = async (e) => {
 
 
   const handleClickBuy = async () => {
-    const variantId = infoSelect.variantId || product.variants[0]._id;
+    const variantId = infoSelect.variantId || variants[0]._id;
     const quantityToAdd = Number(infoSelect.quantity) || 1;
 
     const existingProduct = orderListProducts.find(

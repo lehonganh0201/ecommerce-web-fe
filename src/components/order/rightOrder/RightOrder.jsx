@@ -36,7 +36,7 @@ const RightOrder = ({ orderInformation, setOrderInformation }) => {
   useEffect(() => {
     setOrderInformation((prev) => ({
       ...prev,
-      items: products.map((product) => ({
+      orderItems: products.map((product) => ({
         variantId: product.variantId,
         quantity: product.quantity,
       })),
