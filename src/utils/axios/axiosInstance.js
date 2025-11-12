@@ -55,9 +55,6 @@ const processQueue = (error, token = null) => {
 
 axiosPrivate.interceptors.response.use(
   (response) => {
-    // if (response && response.data) {
-    //   return response.data;
-    // }
     return response;
   },
   async (error) => {
@@ -65,7 +62,7 @@ axiosPrivate.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
@@ -83,8 +80,8 @@ axiosPrivate.interceptors.response.use(
       try {
         const response = await refreshToken();
         const { accessToken } = response.data;
-        axiosPrivate.defaults.headers.common["Authorization"] =
-          "Bearer " + accessToken;
+        
+        axiosPrivate.defaults.headers.common["Authorization"] = "Bearer " + accessToken;
 
         processQueue(null, accessToken);
 

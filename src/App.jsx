@@ -20,6 +20,7 @@ import Cart from "./pages/cart/Cart";
 import FollowingProducts from "./pages/followingProducts/FollowingProducts";
 import Profile from "./pages/profile/Profile";
 import References from "./pages/references/References";
+import Search from "./pages/product/search/Search";
 
 function App() {
   useEffect(() => {
@@ -36,6 +37,10 @@ function App() {
     {
       path: "/product/:id",
       element: <DetailProduct />,
+    },
+    {
+      path: "/search",
+      element: <Search />,
     },
     {
       path: "/productsByCategory/:id",
