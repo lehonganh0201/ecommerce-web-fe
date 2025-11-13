@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatNumber } from "@/utils/function/validateTime";
-import { FaRegHeart } from "react-icons/fa";
-
+import { FaRegHeart, FaHeart } from "react-icons/fa"; // ✅ thêm icon tim đầy
 import "./ProductItem.scss";
 import { getProductById } from "@/apis/product";
 import axios from "axios";
@@ -15,7 +14,7 @@ import { setQuantityOfCart } from "@/store/orderSlice";
 const ProductItem = ({ product }) => {
   const [indexImage, setIndexImage] = useState(0);
   const navigate = useNavigate();
-  const [isFettching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [likeProducts, setLikeProducts] = useState(
     JSON.parse(localStorage.getItem("likeProducts")) || []
   );
@@ -25,26 +24,27 @@ const ProductItem = ({ product }) => {
 
   useEffect(() => {
     setLikeProducts(JSON.parse(localStorage.getItem("likeProducts")) || []);
-  }, [isFettching]);
+  }, [isFetching]);
 
+  // ✅ kiểm tra xem sản phẩm có trong danh sách yêu thích không
   const isLiked = (product) => {
     return likeProducts.some((item) => item.id === product.id);
   };
 
   const handleLike = (product) => {
-    setIsFetching(!isFettching);
+    setIsFetching(!isFetching);
     const isLike = isLiked(product);
+
     if (isLike) {
       const updatedLikeProducts = likeProducts.filter(
         (item) => item.id !== product.id
       );
       localStorage.setItem("likeProducts", JSON.stringify(updatedLikeProducts));
-      toast.success('Thêm sản phẩm vào yêu thích thành công')
+      toast.info("Đã xóa sản phẩm khỏi danh sách yêu thích");
     } else {
-      likeProducts.push(product);
-      localStorage.setItem("likeProducts", JSON.stringify(likeProducts));
-      toast.success('Thêm sản phẩm vào yêu thích thành công')
-
+      const updatedLikeProducts = [...likeProducts, product];
+      localStorage.setItem("likeProducts", JSON.stringify(updatedLikeProducts));
+      toast.success("Đã thêm sản phẩm vào danh sách yêu thích");
     }
   };
 
@@ -58,11 +58,10 @@ const ProductItem = ({ product }) => {
         quantity: 1,
       };
 
-      const response = await addToCart(data);
+      await addToCart(data);
       dispatch(setQuantityOfCart(quantityOfCart + 1));
-      toast.success("Thêm sản phẩm vào giỏ hàng thành công");
+      toast.success("Thêm sản phẩm vào giỏ hàng thành công 🛒");
     } catch (error) {
-
       if (error.message === "Bạn cần đăng nhập để thực hiện yêu cầu này.") {
         toast.error(error.message);
         navigate("/auth");
@@ -89,59 +88,62 @@ const ProductItem = ({ product }) => {
   };
 
   return (
-    <>
+    <div
+      onClick={() => navigate(`/product/${product.id}`)}
+      className="product-item"
+    >
       <div
-        onClick={() => navigate(`/product/${product.id}`)}
-        className="product-item"
+        className={`product-item_following ${isLiked(product) ? "active" : ""}`}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* <button className="product-item_discount">- {product.discount}%</button> */}
-        <div
-          className={`product-item_following ${
-            isLiked(product) ? "active" : ""
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <FaRegHeart onClick={() => handleLike(product)} />
-        </div>
-        <div className="product-item_img">
-          {product.images?.length > indexImage && (
-            <img src={product.images[indexImage].image} alt={product.name} />
-          )}
-        </div>
-        <button
-          className="product-item_add-to-card"
-          onClick={(e) => handleClickAddToCart(e)}
-        >
-          Thêm vào giỏ hàng
-        </button>
-        <div className="product-item_img-list">
-          {product.images?.map((image, index) => (
-            <div
-              onMouseEnter={() => setIndexImage(index)}
-              key={index}
-              className={`product-item_img-list-item ${
-                index === indexImage ? "active" : ""
-              }`}
-            >
-              <img src={image.image} alt={product.name} />
-            </div>
-          ))}
-        </div>
-        <p className="product-item_name">{product.name}</p>
-        {/* <p className="product-item_sold">
-        Đã bán: <span>{product.count}</span> sản phẩm
-      </p> */}
-        <div className="product-item_price">
-          <p className="product-item_price-fake">
-            {/* {formatNumber(product.price * (1 - product.discount / 100))}đ */}
-            {formatNumber(product.basePrice)} đ
-          </p>
-          {/* <p className="product-item_price-real">
-          {formatNumber(product.price)} đ
-        </p> */}
-        </div>
+        {isLiked(product) ? (
+          <FaHeart
+            color="red" 
+            onClick={() => handleLike(product)}
+          />
+        ) : (
+          <FaRegHeart
+            color="#555" 
+            onClick={() => handleLike(product)}
+          />
+        )}
       </div>
-    </>
+
+      <div className="product-item_img">
+        {product.images?.length > indexImage && (
+          <img src={product.images[indexImage].image} alt={product.name} />
+        )}
+      </div>
+
+      <button
+        className="product-item_add-to-card"
+        onClick={(e) => handleClickAddToCart(e)}
+      >
+        Thêm vào giỏ hàng
+      </button>
+
+      <div className="product-item_img-list">
+        {product.images?.map((image, index) => (
+          <div
+            onMouseEnter={() => setIndexImage(index)}
+            key={index}
+            className={`product-item_img-list-item ${
+              index === indexImage ? "active" : ""
+            }`}
+          >
+            <img src={image.image} alt={product.name} />
+          </div>
+        ))}
+      </div>
+
+      <p className="product-item_name">{product.name}</p>
+
+      <div className="product-item_price">
+        <p className="product-item_price-fake">
+          {formatNumber(product.basePrice)} đ
+        </p>
+      </div>
+    </div>
   );
 };
 
