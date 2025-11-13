@@ -69,13 +69,16 @@ export const login = async (data) => {
 export const refreshToken = async () => {
   try {
     const refresh_token = localStorage.getItem("refreshToken");
+    if (!refresh_token) throw new Error("No refresh token found");
+
     const response = await request(axiosPublic, {
       url: "/auth/refresh-token",
       method: "POST",
-      data: {
+      headers: {
         Authorization: `Bearer ${refresh_token}`,
       },
     });
+
     return response.data;
   } catch (error) {
     console.error("Refresh token API error:", JSON.stringify(error, null, 2));

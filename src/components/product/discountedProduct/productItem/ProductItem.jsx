@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatNumber } from "@/utils/function/validateTime";
-import { FaRegHeart, FaHeart } from "react-icons/fa"; // ✅ thêm icon tim đầy
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 import "./ProductItem.scss";
 import { getProductById } from "@/apis/product";
 import axios from "axios";
@@ -26,7 +26,6 @@ const ProductItem = ({ product }) => {
     setLikeProducts(JSON.parse(localStorage.getItem("likeProducts")) || []);
   }, [isFetching]);
 
-  // ✅ kiểm tra xem sản phẩm có trong danh sách yêu thích không
   const isLiked = (product) => {
     return likeProducts.some((item) => item.id === product.id);
   };
@@ -49,43 +48,73 @@ const ProductItem = ({ product }) => {
   };
 
   const handleClickAddToCart = async (e) => {
-    e.stopPropagation();
-    try {
-      const productDetails = await getProductById(product.id);
+  e.stopPropagation();
 
+  const accessToken = localStorage.getItem("accessToken");
+  const quantityToAdd = 1; 
+  const selectedVariant =
+    product.variants?.[0] || product;
+
+  if (!selectedVariant) {
+    toast.error("Không tìm thấy biến thể sản phẩm");
+    return;
+  }
+
+  try {
+    if (accessToken) {
       const data = {
-        variantId: productDetails.data.variants[0].id,
-        quantity: 1,
+        variantId: selectedVariant.id || selectedVariant._id,
+        quantity: quantityToAdd,
       };
 
       await addToCart(data);
-      dispatch(setQuantityOfCart(quantityOfCart + 1));
-      toast.success("Thêm sản phẩm vào giỏ hàng thành công 🛒");
-    } catch (error) {
-      if (error.message === "Bạn cần đăng nhập để thực hiện yêu cầu này.") {
-        toast.error(error.message);
-        navigate("/auth");
-        return;
+      dispatch(setQuantityOfCart(quantityOfCart + quantityToAdd));
+      toast.success("Thêm sản phẩm vào giỏ hàng thành công");
+    } else {
+      const productCart = {
+        id: product.id,
+        productName: product.name,
+        imageUrl:
+          selectedVariant.imageUrl ||
+          selectedVariant.images?.[0]?.image ||
+          product.images?.[0]?.image,
+        variantId: selectedVariant.id || selectedVariant._id,
+        quantity: quantityToAdd,
+        price: selectedVariant.price || product.basePrice,
+        stock: selectedVariant.stock || selectedVariant.stockQuantity,
+        addedAt: new Date().toISOString(),
+      };
+
+      let localCart = JSON.parse(localStorage.getItem("cart")) || [];
+      const existingIndex = localCart.findIndex(
+        (item) => item.variantId === productCart.variantId
+      );
+
+      if (existingIndex > -1) {
+        localCart[existingIndex].quantity += productCart.quantity;
+      } else {
+        localCart.push(productCart);
       }
-      if (axios.isAxiosError(error) && error.response) {
-        switch (error.response.status) {
-          case 500:
-            toast.error("Lỗi hệ thống");
-            break;
-          case 400:
-            toast.error("Thông tin sản phẩm không hợp lệ");
-            break;
-          case 401:
-            toast.error("Bạn cần đăng nhập để thực hiện thao tác này");
-            navigate("/auth");
-            break;
-          default:
-            toast.error("Đã xảy ra lỗi, vui lòng kiểm tra lại kết nối!");
-        }
-      }
-      console.error("Error adding product to cart:", error);
+
+      localStorage.setItem("cart", JSON.stringify(localCart));
+      const totalQuantity = localCart.reduce(
+        (sum, item) => sum + item.quantity,
+        0
+      );
+      dispatch(setQuantityOfCart(totalQuantity));
+
+      toast.success("Thêm sản phẩm vào giỏ hàng thành công");
     }
-  };
+  } catch (error) {
+    console.error("Error adding product to cart:", error);
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      toast.error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+      navigate("/auth");
+    } else {
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
+    }
+  }
+};
 
   return (
     <div

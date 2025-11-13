@@ -1,12 +1,10 @@
 /* eslint-disable */
 import React, { useEffect, useState } from "react";
-import { FaRegHeart } from "react-icons/fa";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { ImHeadphones } from "react-icons/im";
 import { FiPackage } from "react-icons/fi";
 import { FaTruck } from "react-icons/fa";
 import { PiHandCoinsFill } from "react-icons/pi";
-import { FaHeart } from "react-icons/fa6";
-
 import "./RightSession.scss";
 import { formatNumber } from "@/utils/function/validateTime";
 import { addToCart } from "@/apis/cart";
@@ -23,103 +21,111 @@ const RightSession = ({ product }) => {
     quantity: "1",
   });
   const [variants, setVariants] = useState([]);
+  const [likeProducts, setLikeProducts] = useState(
+    JSON.parse(localStorage.getItem("likeProducts")) || []
+  );
 
   useEffect(() => {
-  const fetchVariants = async () => {
-    const res = await getVariantsByProductId(product.id);
-    setVariants(res.data || []);
-  };
+    const fetchVariants = async () => {
+      const res = await getVariantsByProductId(product.id);
+      setVariants(res.data || []);
+    };
 
-  if (product?.id) fetchVariants();
-}, [product?.id]);
-  const [isLike, setIsLike] = useState(false);
-  const [quantity, setQuantity] = useState(1)
+    if (product?.id) fetchVariants();
+  }, [product?.id]);
+
   const dispatch = useDispatch();
   const orderListProducts = useSelector((state) => state.order.orderList || []);
   const quantityOfCart = useSelector((state) => state.order.quantityOfCart);
-
-  const benefits = [
-    {
-      icon: <ImHeadphones />,
-      title: "Giao hàng toàn quốc",
-      desc: "Thanh toán (COD) khi nhận hàng",
-    },
-    {
-      icon: <FiPackage />,
-      title: "Miễn phí giao hàng",
-      desc: "Theo chính sách",
-    },
-    {
-      icon: <FaTruck />,
-      title: "Đổi trả trong 7 ngày",
-      desc: "Kể từ ngày giao hàng",
-    },
-    {
-      icon: <PiHandCoinsFill />,
-      title: "Hỗ trợ 24/7",
-      desc: "Theo chính sách",
-    },
-  ];
-
   const navigate = useNavigate();
 
-const handleClickAddToCart = async (e) => {
-  e.stopPropagation();
+  // --- Kiểm tra xem sản phẩm này đã yêu thích chưa ---
+  const isLiked = likeProducts.some((item) => item.id === product.id);
 
-  const checkToken = localStorage.getItem("accessToken");
-  const quantityToAdd = Number(infoSelect.quantity) || 1;
-
-  try {
-    if (checkToken) {
-      const data = {
-        variantId: infoSelect.variantId || variants[0].id,
-        quantity: quantityToAdd,   // ✅ lấy theo input
-      };
-
-      await addToCart(data);
-      dispatch(setQuantityOfCart(quantityOfCart + quantityToAdd));
-      toast.success("Thêm sản phẩm vào giỏ hàng thành công");
-
+  const handleLike = () => {
+    let updatedLikeProducts;
+    if (isLiked) {
+      updatedLikeProducts = likeProducts.filter((item) => item.id !== product.id);
+      toast.info("Đã xóa khỏi danh sách yêu thích");
     } else {
-      const selectedVariant = product.variants.find(
-        (v) => v.id === infoSelect.variantId || v._id === infoSelect.variantId
-      ) || product.variants[0];
-
-      const productCart = {
-        id: product.id,
-        productName: product.name,
-        imageUrl: selectedVariant.imageUrl,
-        variantId: selectedVariant.id || selectedVariant._id,
-        quantity: quantityToAdd,  // ✅ lấy số lượng nhập
-        price: selectedVariant.price || product.price,
-        stock: selectedVariant.stock,
-        variant: selectedVariant,
-        addedAt: new Date().toISOString(),
-      };
-
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const checkItemIndex = cart.findIndex(i => i.variantId === productCart.variantId);
-
-      if (checkItemIndex > -1) {
-        cart[checkItemIndex].quantity += productCart.quantity;
-      } else {
-        cart.push(productCart);
-      }
-
-      localStorage.setItem("cart", JSON.stringify(cart));
-
-      const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
-      dispatch(setQuantityOfCart(totalQuantity));
-
-      toast.success("Thêm sản phẩm vào giỏ hàng thành công");
+      updatedLikeProducts = [...likeProducts, product];
+      toast.success("Đã thêm vào danh sách yêu thích");
     }
-  } catch (error) {
-    console.error("Error adding product to cart:", error);
-    toast.error("Không thể thêm sản phẩm vào giỏ hàng");
-  }
-};
+    setLikeProducts(updatedLikeProducts);
+    localStorage.setItem("likeProducts", JSON.stringify(updatedLikeProducts));
+  };
 
+  const handleClickAddToCart = async (e) => {
+    e.stopPropagation();
 
+    const accessToken = localStorage.getItem("accessToken");
+    const quantityToAdd = Number(infoSelect.quantity) || 1;
+    const selectedVariant =
+      variants.find(
+        (v) => v.id === infoSelect.variantId || v._id === infoSelect.variantId
+      ) || variants[0];
+
+    if (!selectedVariant) {
+      toast.error("Không tìm thấy biến thể sản phẩm");
+      return;
+    }
+
+    try {
+      if (accessToken) {
+        const data = {
+          variantId: selectedVariant.id || selectedVariant._id,
+          quantity: quantityToAdd,
+        };
+
+        await addToCart(data);
+        dispatch(setQuantityOfCart(quantityOfCart + quantityToAdd));
+        toast.success("Thêm sản phẩm vào giỏ hàng thành công");
+      } else {
+        const productCart = {
+          id: product.id,
+          productName: product.name,
+          imageUrl:
+            selectedVariant.imageUrl ||
+            selectedVariant.images?.[0]?.image ||
+            product.images?.[0]?.image,
+          variantId: selectedVariant.id || selectedVariant._id,
+          quantity: quantityToAdd,
+          price: selectedVariant.price || product.basePrice,
+          stock: selectedVariant.stock || selectedVariant.stockQuantity,
+          addedAt: new Date().toISOString(),
+        };
+
+        let localCart = JSON.parse(localStorage.getItem("cart")) || [];
+        const existingIndex = localCart.findIndex(
+          (item) => item.variantId === productCart.variantId
+        );
+
+        if (existingIndex > -1) {
+          localCart[existingIndex].quantity += productCart.quantity;
+        } else {
+          localCart.push(productCart);
+        }
+
+        localStorage.setItem("cart", JSON.stringify(localCart));
+
+        const totalQuantity = localCart.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        dispatch(setQuantityOfCart(totalQuantity));
+
+        toast.success("Thêm sản phẩm vào giỏ hàng thành công");
+      }
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        toast.error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+        navigate("/auth");
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng");
+      }
+    }
+  };
 
   const handleClickBuy = async () => {
     const variantId = infoSelect.variantId || variants[0]._id;
@@ -150,25 +156,45 @@ const handleClickAddToCart = async (e) => {
     await handleClickAddToCart();
     navigate("/cart");
   };
-  
+
+  const benefits = [
+    {
+      icon: <ImHeadphones />,
+      title: "Giao hàng toàn quốc",
+      desc: "Thanh toán (COD) khi nhận hàng",
+    },
+    {
+      icon: <FiPackage />,
+      title: "Miễn phí giao hàng",
+      desc: "Theo chính sách",
+    },
+    {
+      icon: <FaTruck />,
+      title: "Đổi trả trong 7 ngày",
+      desc: "Kể từ ngày giao hàng",
+    },
+    {
+      icon: <PiHandCoinsFill />,
+      title: "Hỗ trợ 24/7",
+      desc: "Theo chính sách",
+    },
+  ];
+
 
   return (
     <div className="right-session">
       <div className="right-session__product-name">
         <h1>{product.name}</h1>
-        <div className="right-session__product-name__icons">
-          {isLike ? (
-            <FaHeart
-              onClick={() => setIsLike(!isLike)}
-              style={{ fontSize: "24px", cursor: "pointer", color: "#ff6347" }}
-            />
+        <div
+          className={`right-session__product-name__icons ${isLiked ? "liked" : ""
+            }`}
+          onClick={handleLike}
+        >
+          {isLiked ? (
+            <FaHeart color="#ff4d4f" fontSize='24px' />
           ) : (
-            <FaRegHeart
-              onClick={() => setIsLike(!isLike)}
-              style={{ fontSize: "24px", cursor: "pointer" }}
-            />
+            <FaRegHeart color="#555" fontSize='24px' />
           )}
-          {/* <button>{product.status}</button> */}
         </div>
       </div>
       <div className="right-session__price">
@@ -201,9 +227,8 @@ const handleClickAddToCart = async (e) => {
                     })
                   }
                   key={attrIndex}
-                  className={`${
-                    infoSelect.type === attribute.value ? "active" : ""
-                  }`}
+                  className={`${infoSelect.type === attribute.value ? "active" : ""
+                    }`}
                 >
                   {attribute.value}
                 </button>
@@ -212,7 +237,7 @@ const handleClickAddToCart = async (e) => {
         </div>
       </div>
       <div className="right-session__quantity-group">
-        <p>Tồn kho: {infoSelect?.stock ?? variants[0]?.stockQuantity}</p> 
+        <p>Tồn kho: {infoSelect?.stock ?? variants[0]?.stockQuantity}</p>
         <p>Số lượng</p>
         <div className="right-session__quantity-group__quantity">
           <div className="right-session__quantity-group__quantity-buttons">
