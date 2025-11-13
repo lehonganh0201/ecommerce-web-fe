@@ -23,6 +23,7 @@ import References from "./pages/references/References";
 import Search from "./pages/product/search/Search";
 import Order from "./pages/order/Order";
 import ProtectedRoute from "./components/auth/protectedRoute/ProtectedRoute";
+import ChatWidget from "./components/chat/chatWidget/ChatWidget";
 
 function App() {
   useEffect(() => {
@@ -129,6 +130,7 @@ function App() {
         limit={10}
       />
       {routes}
+      <ChatWidget/>
     </>
   );
 }

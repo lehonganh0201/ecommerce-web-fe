@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       /* eslint-disable no-undef */
       "@": path.resolve(__dirname, "./src"),
+      "sockjs-client": "sockjs-client/dist/sockjs.js",
     },
   },
 });
