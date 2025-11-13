@@ -1,15 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { logout as logoutApi } from "@/apis/auth";
 
 const HeaderAdmin = ({ title }) => {
   const navigate = useNavigate();
-  const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("role");
-    // window.location.reload();
-    navigate("/auth");
+  const logout = async () => {
+    try {
+      await logoutApi();
+
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("role");
+
+      toast.success("Đăng xuất thành công");
+      navigate("/auth");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Đăng xuất thất bại, vui lòng thử lại");
+    }
   };
+
   return (
     <header className="bg-[#FFFDD0] bg-opacity-50 backdrop-blur-md shadow-lg ">
       <div className="max-w-7xl flex justify-between items-center mx-auto py-4 px-4 sm:px-6 lg:px-8">

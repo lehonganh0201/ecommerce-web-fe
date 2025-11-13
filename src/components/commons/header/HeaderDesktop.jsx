@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { getProductsInCart } from "@/apis/cart";
 import { setQuantityOfCart } from "@/store/orderSlice";
 import { searchProducts } from "@/apis/product";
+import { logout } from "@/apis/auth";
 
 const HeaderDesktop = () => {
   const [inputText, setInputText] = useState("");
@@ -223,13 +224,26 @@ const HeaderDesktop = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+  try {
+    await logout();
+
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    toast.success("Đăng xuất thành công");
+    localStorage.removeItem("fullName");
+    localStorage.removeItem("role");
+    localStorage.removeItem("cart");
+
+    dispatch(setQuantityOfCart(0)); 
     setIsLogin(false);
+
+    toast.success("Đăng xuất thành công");
     navigate("/auth");
-  };
+  } catch (error) {
+    console.error("Logout failed:", error);
+    toast.error("Đăng xuất thất bại, vui lòng thử lại");
+  }
+};
 
   useEffect(() => {
     const fetchProductOfCart = async () => {

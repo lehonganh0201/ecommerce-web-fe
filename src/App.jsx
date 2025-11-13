@@ -22,6 +22,7 @@ import Profile from "./pages/profile/Profile";
 import References from "./pages/references/References";
 import Search from "./pages/product/search/Search";
 import Order from "./pages/order/Order";
+import ProtectedRoute from "./components/auth/protectedRoute/ProtectedRoute";
 
 function App() {
   useEffect(() => {
@@ -45,7 +46,7 @@ function App() {
     },
     {
       path: "/productsByCategory/:id",
-      element: <ProductsByCategory/>
+      element: <ProductsByCategory />
     },
     {
       path: "/followingProducts",
@@ -57,7 +58,11 @@ function App() {
     },
     {
       path: "/order",
-      element: <Order/>
+      element: (
+        <ProtectedRoute>
+          <Order />
+        </ProtectedRoute>
+      )
     },
     {
       path: "/profile",
@@ -69,23 +74,23 @@ function App() {
     },
     {
       path: "/blog",
-      element: <BlogList/>
+      element: <BlogList />
     },
     {
       path: '/blog/:slug',
-      element:<BlogDetail/>
+      element: <BlogDetail />
     },
     {
       path: "/search-blog",
-      element: <SearchResultPage/>
+      element: <SearchResultPage />
     },
     {
       path: "/contact",
-      element: <ContactPage/>
+      element: <ContactPage />
     },
     {
       path: "/market-system",
-      element: <MarketSystemPage/>
+      element: <MarketSystemPage />
     },
     {
       path: "/auth",
@@ -97,11 +102,19 @@ function App() {
     },
     {
       path: "/admin/products",
-      element: <ProductAdminPage />,
+      element: (
+        <ProtectedRoute requiredRole="ROLE_ADMIN">
+          <ProductAdminPage />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/admin/categories",
-      element: <CategoryAdminPage />,
+      element: (
+        <ProtectedRoute requiredRole="ROLE_ADMIN">
+          <CategoryAdminPage />
+        </ProtectedRoute>
+      ),
     },
   ]);
   return (

@@ -119,3 +119,20 @@ export const changePassword = async (data) => {
     throw new Error("Đổi mật khẩu không thành công");
   }
 };
+
+export const logout = async () => {
+  try {
+    const refresh_token = localStorage.getItem("refreshToken");
+    const response = await request(axiosPrivate, {
+      url: "/auth/logout",
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${refresh_token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Logout API error:", error);
+    throw error;
+  }
+};
