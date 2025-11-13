@@ -36,7 +36,7 @@ const Category = () => {
           onClick={() => navigate(`/productsByCategory/${item.id}`)}
         >
           <div className="category__item-img">
-            <img src={item.imageUrl} alt={item.name} />
+            <img src={item.image} alt={item.name} />
           </div>
           <button className="category__item-btn">{item.name}</button>
         </div>

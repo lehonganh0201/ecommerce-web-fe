@@ -21,7 +21,7 @@ const CategoryHeader = () => {
           sortedBy: "createdAt",
           sortDirection: "desc",
           page: 0,
-          size: 10,
+          size: 30,
         };
         const response = await getCategories(data);
         setCategorys(response.data);
@@ -92,7 +92,7 @@ const CategoryHeader = () => {
           >
             <div key={index} className="category__item">
               <div className="category__item-img">
-                <img src={category.imageUrl} alt={category.name} />
+                <img src={category.image} alt={category.name} />
               </div>
               <button className="category__item-btn">{category.name}</button>
             </div>

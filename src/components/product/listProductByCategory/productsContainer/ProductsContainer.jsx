@@ -6,8 +6,10 @@ import "./ProductsContainer.scss";
 import ProductItem from "../../discountedProduct/productItem/ProductItem";
 import { Pagination } from "antd";
 import { getProducts } from "@/apis/product";
+import { useParams } from "react-router-dom";
 
 const ProductsContainer = ({ price }) => {
+  const { id } = useParams();
   const [pageSize, setPageSize] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -25,10 +27,10 @@ const ProductsContainer = ({ price }) => {
           sortDirection: "desc",
           page: currentPage - 1,
           size: pageSize,
-          category: price.categoryId,
+          categoryId: id,
           status: "true",
-          minPrice: price.minPrice !== 0 ? price.minPrice : "",
-          maxPrice: price.maxPrice !== 0 ? price.maxPrice : "",
+          minPrice: price !== 0 ? price : "",
+          maxPrice: price !== 0 ? price : "",
         };
 
         const response = await getProducts(data);

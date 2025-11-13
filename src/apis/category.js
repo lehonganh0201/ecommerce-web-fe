@@ -23,6 +23,19 @@ export const getCategories = async (data) => {
   }
 };
 
+export const getCategoryById = async (categoryId) => {
+  try {
+    const res = await request(axiosPublic, {
+      method: "GET",
+      url: `/categories/${categoryId}`,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Get category by ID error:", error.response?.data);
+    throw new Error("Không thể lấy thông tin danh mục");
+  }
+};
+
 export const uploadImageCategory = async (categoryId, file) => {
   const formData = new FormData();
   formData.append("file", file);
