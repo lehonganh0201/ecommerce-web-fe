@@ -28,14 +28,12 @@ export const register = async (data) => {
 export const verifyOTP = async (data) => {
   try {
     const { email, otp } = data;
-    await request(axiosPublic, {
+    const response = await request(axiosPublic, {
       url: "/auth/verify",
       method: "POST",
-      data: {
-        email,
-        otp,
-      },
+      data: { email, otp },
     });
+    return response;
   } catch (error) {
     console.log(error);
     throw new Error("Xác thực OTP thất bại");
@@ -69,6 +67,7 @@ export const login = async (data) => {
 export const refreshToken = async () => {
   try {
     const refresh_token = localStorage.getItem("refreshToken");
+    console.log("Refresh token called:", refresh_token);
     if (!refresh_token) throw new Error("No refresh token found");
 
     const response = await request(axiosPublic, {

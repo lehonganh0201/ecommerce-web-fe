@@ -17,6 +17,7 @@ import {
   updateProduct,
   updateStatusProduct,
 } from "@/apis/product";
+
 const ProductAdminPage = () => {
   const [products, setProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
@@ -30,21 +31,27 @@ const ProductAdminPage = () => {
   const [hasNext, setHasNext] = useState(true);
   const [hasPrevious, setHasPrevious] = useState(true);
   const [apiPage, setApiPage] = useState(0);
-  const [isActive, setIsActive] = useState(true);
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: null,
   });
-  const [statusFilter, setStatusFilter] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("All");
   const [token, setToken] = useState(
     localStorage.getItem("accessToken")
       ? localStorage.getItem("accessToken")
       : null
   );
 
-  const getAllProducts = async (page = 0, size = itemsPerPage, search = "") => {
+  const getAllProducts = async (page = 0, size = itemsPerPage, search = "", productStatus = null, sortBy = null, sortDir = null) => {
     try {
-      const data = { page, size, keyword: search };
+      const data = { 
+        page, 
+        size, 
+        keyword: search,
+        ...(productStatus !== null && { status: productStatus }),
+        ...(sortBy && { sortedBy: sortBy }),
+        ...(sortDir && { sortDirection: sortDir }),
+      };
       const res = await getProducts(data);
       setProducts(res.data);
       setAllProducts(res.data);
@@ -52,13 +59,12 @@ const ProductAdminPage = () => {
       setHasPrevious(res.meta.hasPrevious);
       setTotalItems(res.meta.totalElements);
       setTotalPages(res.meta.totalPages);
-      setApiPage(res.meta.page);
-      setCurrentPage(apiPage + 1);
+      setApiPage(res.meta.number || res.meta.page || 0); // Standard Spring: number
+      setCurrentPage((res.meta.number || res.meta.page || 0) + 1);
       setItemsPerPage(res.meta.size);
-      setIsActive(res.meta.isActive);
     } catch (err) {
       toast.error(
-        `Lỗi: ${err.message} - Nguyên nhân: ${err.response.statusText} `
+        `Lỗi: ${err.message} - Nguyên nhân: ${err.response?.statusText || "Unknown"}`
       );
       console.log(err);
     }
@@ -66,14 +72,16 @@ const ProductAdminPage = () => {
 
   const filteredProducts = products?.filter(
     (product) =>
-      (product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.id.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "All" || product.status === statusFilter)
-  );
+      product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.id?.toString().toLowerCase().includes(searchQuery.toLowerCase())
+  ) || [];
 
   useEffect(() => {
-    getAllProducts(apiPage, itemsPerPage, searchQuery);
-  }, [apiPage, itemsPerPage, searchQuery, statusFilter]);
+    const productStatus = statusFilter === "All" ? null : statusFilter;
+    const sortBy = sortConfig.key || "createdAt";
+    const sortDir = sortConfig.direction || "desc";
+    getAllProducts(apiPage, itemsPerPage, searchQuery, productStatus, sortBy, sortDir);
+  }, [apiPage, itemsPerPage, searchQuery, statusFilter, sortConfig]); 
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -81,21 +89,33 @@ const ProductAdminPage = () => {
       direction = "desc";
     }
     setSortConfig({ key, direction });
+    setApiPage(0);
+    setCurrentPage(1);
   };
+
   const handleSearchChange = (e) => {
     setSearchQuery(e);
+    setApiPage(0);
+    setCurrentPage(1);
   };
 
   const handleItemsPerPageChange = (size) => {
     setItemsPerPage(size);
     setApiPage(0);
     setCurrentPage(1);
-    getAllProducts(0, size, searchQuery);
+    const productStatus = statusFilter === "All" ? null : statusFilter;
+    const sortBy = sortConfig.key || "createdAt";
+    const sortDir = sortConfig.direction || "desc";
+    getAllProducts(0, size, searchQuery, productStatus, sortBy, sortDir);
   };
+
   const handlePageChange = (page) => {
     setApiPage(page - 1);
     setCurrentPage(page);
-    getAllProducts(page - 1, itemsPerPage, searchQuery);
+    const productStatus = statusFilter === "All" ? null : statusFilter;
+    const sortBy = sortConfig.key || "createdAt";
+    const sortDir = sortConfig.direction || "desc";
+    getAllProducts(page - 1, itemsPerPage, searchQuery, productStatus, sortBy, sortDir);
   };
 
   const handleStatusFilterChange = (newStatus) => {
@@ -130,31 +150,49 @@ const ProductAdminPage = () => {
       if (response.status === 204) {
         toast.success("Xóa sản phẩm thành công");
         setShowModal(null);
-        getAllProducts(apiPage, itemsPerPage, searchQuery);
+        const productStatus = statusFilter === "All" ? null : statusFilter;
+        const sortBy = sortConfig.key || "createdAt";
+        const sortDir = sortConfig.direction || "desc";
+        getAllProducts(apiPage, itemsPerPage, searchQuery, productStatus, sortBy, sortDir);
       }
     } catch (err) {
       toast.error(
-        `Lỗi: ${err.message} - Nguyên nhân: ${err.response.statusText} `
+        `Lỗi: ${err.message} - Nguyên nhân: ${err.response?.statusText || ""} `
       );
       console.log(err);
     }
   };
 
   const handleExportExcel = () => {
-    exportProductsToExcel(filteredProducts);
+    exportProductsToExcel(products); 
   };
 
   const handleToggleActive = async (product) => {
     try {
-      const res = await updateStatusProduct(product.id, !product.isActive);
+      if (product.status === undefined) {
+        console.warn("Product missing status field");
+        return;
+      }
+      const newStatus = !product.status;
+      const res = await updateStatusProduct(product.id, newStatus);
       toast.success("Thay đổi trạng thái thành công!");
-      getAllProducts(apiPage, itemsPerPage, searchQuery);
+      
+      const productStatus = statusFilter === "All" ? null : statusFilter;
+      const sortBy = sortConfig.key || "createdAt";
+      const sortDir = sortConfig.direction || "desc";
+      getAllProducts(apiPage, itemsPerPage, searchQuery, productStatus, sortBy, sortDir);
+      
+      if (statusFilter !== "All" && newStatus !== statusFilter) {
+        setStatusFilter("All");
+        toast.info("Đã chuyển sang xem tất cả để hiển thị thay đổi");
+      }
     } catch (err) {
       toast.error(
-        `Lỗi: ${err.message} \n Nguyên nhân: ${err.response.statusText} `
+        `Lỗi: ${err.message} \n Nguyên nhân: ${err.response?.statusText || ""}`
       );
     }
   };
+
   const handleFormSubmit = async (formData, imageFiles) => {
     const formdata = new FormData();
     formdata.append("name", formData.name);
@@ -191,13 +229,22 @@ const ProductAdminPage = () => {
         }
       }
       setShowModal(null);
-      getAllProducts(apiPage, itemsPerPage, searchQuery);
+      const productStatus = statusFilter === "All" ? null : statusFilter;
+      const sortBy = sortConfig.key || "createdAt";
+      const sortDir = sortConfig.direction || "desc";
+      getAllProducts(apiPage, itemsPerPage, searchQuery, productStatus, sortBy, sortDir);
     } catch (err) {
       toast.error(
         `Lỗi: ${err.message} \n Nguyên nhân: ${err.response?.statusText || ""}`
       );
       console.log(err);
     }
+  };
+
+  const statusCounts = {
+    all: allProducts.length,
+    active: allProducts.filter(p => p.status === true).length,
+    inactive: allProducts.filter(p => p.status === false).length,
   };
 
   return (
@@ -207,7 +254,7 @@ const ProductAdminPage = () => {
         <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 10, x: 0 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
             <ProductFilters
@@ -217,10 +264,12 @@ const ProductAdminPage = () => {
               onStatusFilterChange={handleStatusFilterChange}
               onExportExcel={handleExportExcel}
               onAddProduct={handleAddProduct}
+              statusCounts={statusCounts}
+              totalCount={allProducts.length}
             />
 
             <ProductList
-              products={products}
+              products={filteredProducts.length > 0 ? filteredProducts : products} // Apply client search if needed, else server data
               apiPage={apiPage}
               currentPage={currentPage}
               productsPerPage={itemsPerPage}

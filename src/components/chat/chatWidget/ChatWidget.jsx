@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom"; // import useNavigate
+import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
@@ -12,7 +12,7 @@ const ChatWidget = () => {
 
   const stompClientRef = useRef(null);
   const TOKEN = localStorage.getItem("accessToken");
-  const navigate = useNavigate(); // hook navigate
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -21,6 +21,11 @@ const ChatWidget = () => {
   };
 
   useEffect(() => {
+    if (!TOKEN) {
+      console.log("User not logged in. Socket connection not established.");
+      return;
+    }
+
     const client = new Client({
       webSocketFactory: () =>
         new SockJS(import.meta.env.VITE_API_URL.replace("/api/v1", "") + "/ws"),
@@ -69,10 +74,10 @@ const ChatWidget = () => {
     };
 
     client.activate();
+
     return () => client.deactivate();
   }, [TOKEN]);
 
-  // render products, thêm navigate vào onClick
   const renderProducts = (products) => {
     return products
       .map(
@@ -98,7 +103,6 @@ const ChatWidget = () => {
       .join("");
   };
 
-  // xử lý click navigate cho button product
   useEffect(() => {
     const handleClick = (e) => {
       const btn = e.target.closest(".product-btn");
@@ -180,45 +184,6 @@ const ChatWidget = () => {
           </div>
         </div>
       )}
-
-      <style>{`
-        .product-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 10px;
-          margin-top: 10px;
-          padding: 10px;
-          border: 1px solid #eee;
-          border-radius: 5px;
-          background: #f9f9f9;
-        }
-        .product-card {
-          border: 1px solid #ddd;
-          padding: 10px;
-          border-radius: 5px;
-          text-align: center;
-          background: white;
-        }
-        .product-card img {
-          width: 100%;
-          height: 150px;
-          object-fit: cover;
-          border-radius: 3px;
-        }
-        .product-card h4 { margin: 5px 0; font-size: 14px; }
-        .product-card p { margin: 2px 0; font-size: 12px; color: #666; }
-        .product-card .price { font-weight: bold; color: red; }
-        .product-card button {
-          background: #007bff;
-          color: white;
-          border: none;
-          padding: 5px 10px;
-          border-radius: 3px;
-          cursor: pointer;
-          margin-top: 5px;
-        }
-        .product-card button:hover { background: #0056b3; }
-      `}</style>
     </div>
   );
 };

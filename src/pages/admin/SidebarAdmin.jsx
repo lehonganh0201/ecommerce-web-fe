@@ -4,8 +4,10 @@ import {
   BarChart2,
   DollarSign,
   Menu,
+  Package,
   ShoppingBag,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
@@ -16,6 +18,12 @@ const SIDEBAR_ITEMS = [
     icon: BarChart2,
     color: "#6366f1",
     href: "/admin",
+  },
+  {
+    name: "Quản lý tài khoản",
+    icon: Users,
+    color: "#3B82F6",
+    href: "/admin/accounts",
   },
   {
     name: "Quản lý danh mục",
@@ -30,12 +38,19 @@ const SIDEBAR_ITEMS = [
     href: "/admin/products",
   },
   {
+    name: "Quản lý kho",
+    icon: Package,
+    color: "#F59E0B",
+    href: "/admin/inventory",
+  },
+  {
     name: "Quản lý đơn hàng",
     icon: DollarSign,
     color: "#10b981",
     href: "/admin/orders",
   },
 ];
+
 const SidebarAdmin = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
