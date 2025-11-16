@@ -169,11 +169,11 @@ const ProductAdminPage = () => {
 
   const handleToggleActive = async (product) => {
     try {
-      if (product.status === undefined) {
+      if (product.isActive === undefined) {
         console.warn("Product missing status field");
         return;
       }
-      const newStatus = !product.status;
+      const newStatus = !product.isActive;
       const res = await updateStatusProduct(product.id, newStatus);
       toast.success("Thay đổi trạng thái thành công!");
       
