@@ -24,6 +24,7 @@ import Search from "./pages/product/search/Search";
 import Order from "./pages/order/Order";
 import ProtectedRoute from "./components/auth/protectedRoute/ProtectedRoute";
 import ChatWidget from "./components/chat/chatWidget/ChatWidget";
+import OrderAdminPage from "./pages/admin/OrderAdminPage";
 
 function App() {
   useEffect(() => {
@@ -47,7 +48,7 @@ function App() {
     },
     {
       path: "/productsByCategory/:id",
-      element: <ProductsByCategory />
+      element: <ProductsByCategory />,
     },
     {
       path: "/followingProducts",
@@ -63,7 +64,7 @@ function App() {
         <ProtectedRoute>
           <Order />
         </ProtectedRoute>
-      )
+      ),
     },
     {
       path: "/profile",
@@ -75,23 +76,23 @@ function App() {
     },
     {
       path: "/blog",
-      element: <BlogList />
+      element: <BlogList />,
     },
     {
-      path: '/blog/:slug',
-      element: <BlogDetail />
+      path: "/blog/:slug",
+      element: <BlogDetail />,
     },
     {
       path: "/search-blog",
-      element: <SearchResultPage />
+      element: <SearchResultPage />,
     },
     {
       path: "/contact",
-      element: <ContactPage />
+      element: <ContactPage />,
     },
     {
       path: "/market-system",
-      element: <MarketSystemPage />
+      element: <MarketSystemPage />,
     },
     {
       path: "/auth",
@@ -117,6 +118,14 @@ function App() {
         </ProtectedRoute>
       ),
     },
+    {
+      path: "/admin/orders",
+      element: (
+        <ProtectedRoute requiredRole="ROLE_ADMIN">
+          <OrderAdminPage />
+        </ProtectedRoute>
+      ),
+    },
   ]);
   return (
     <>
@@ -130,7 +139,7 @@ function App() {
         limit={10}
       />
       {routes}
-      <ChatWidget/>
+      <ChatWidget />
     </>
   );
 }
