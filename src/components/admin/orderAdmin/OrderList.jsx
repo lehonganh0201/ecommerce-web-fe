@@ -1,4 +1,3 @@
-
 import ProductPagination from "../productAdmin/ProductPagination";
 import OrderListItem from "./OrderListItem";
 
@@ -13,7 +12,6 @@ const OrderList = ({
   onViewOrder,
   hasNext,
   hasPrevious,
-  token,
   onStatusChange,
   onSort,
 }) => {
@@ -66,7 +64,6 @@ const OrderList = ({
                 key={order.id}
                 order={order}
                 onView={onViewOrder}
-                token={token}
                 onStatusChange={onStatusChange}
               />
             ))}

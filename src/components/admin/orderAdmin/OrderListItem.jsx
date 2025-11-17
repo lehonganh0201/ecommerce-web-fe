@@ -1,10 +1,10 @@
 import { Eye } from "lucide-react";
 import React, { useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { motion as Motion } from "framer-motion";
 import OrderStatusBadge from "./OrderStatusBadge";
-const OrderListItem = ({ order, onView, token, onStatusChange }) => {
+import { updateStatus } from "@/apis/order";
+const OrderListItem = ({ order, onView, onStatusChange }) => {
   const itemsCount = order.orderItems.length;
   const [status, setStatus] = useState(order.status);
 
@@ -26,13 +26,11 @@ const OrderListItem = ({ order, onView, token, onStatusChange }) => {
   const handleStatusChange = async (e) => {
     const newStatus = e.target.value;
     try {
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}/orders/${
-          order.id
-        }?status=${newStatus}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const data = {
+        orderId: order.id,
+        status: newStatus,
+      };
+      await updateStatus(data);
       setStatus(newStatus);
       toast.success("Cập nhật trạng thái thành công");
       onStatusChange();

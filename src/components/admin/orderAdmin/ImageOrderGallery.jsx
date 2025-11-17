@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 
-const ImageOrderGallery = ({ items, token }) => {
+const ImageOrderGallery = ({ items }) => {
   const [selectedItem, setSelectedItem] = useState(items[0] || null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -102,18 +102,18 @@ const ImageOrderGallery = ({ items, token }) => {
                         <ul>
                           {selectedItem.attributes.map((attr, idx) => (
                             <li key={idx}>
-                              <span className="font-medium">{attr.type}:</span>{" "}
+                              <span className="font-medium">{attr.name}:</span>{" "}
                               {attr.value}
                             </li>
                           ))}
                         </ul>
                       </div>
                     )}
-                  {selectedItem.description && (
+                  {selectedItem?.description && (
                     <div>
                       <span className="text-sm text-gray-500">Mô tả:</span>
                       <div className="text-sm text-gray-700">
-                        {selectedItem.description}
+                        {selectedItem?.description}
                       </div>
                     </div>
                   )}

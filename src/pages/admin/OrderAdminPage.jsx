@@ -128,7 +128,6 @@ const OrderAdminPage = () => {
               hasNext={hasNext}
               hasPrevious={hasPrevious}
               onViewOrder={handleViewOrder}
-              token={token}
               onStatusChange={getAllOrders}
               onSort={handleSort}
             />

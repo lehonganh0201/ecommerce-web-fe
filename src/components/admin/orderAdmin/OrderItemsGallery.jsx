@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import ImageOrderGallery from "./ImageOrderGallery";
-import axios from "axios";
+import { getProductByVariantId } from "@/apis/variant";
+import { getProductByProductId } from "@/apis/product";
 
-const OrderItemsGallery = ({ items, onClose, token }) => {
+const OrderItemsGallery = ({ items, token }) => {
   const [itemsWithImages, setItemsWithImages] = useState([]);
 
   useEffect(() => {
@@ -11,24 +12,20 @@ const OrderItemsGallery = ({ items, onClose, token }) => {
         items.map(async (item) => {
           if (item.image) return item;
           try {
-            const res = await axios.get(
-              `${import.meta.env.VITE_API_URL}/variants/${item.variantId}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-            const variant = res.data.data;
+            const res = await getProductByVariantId(item.variantId);
+            const variant = res.data;
+            const response = await getProductByProductId(variant.productId);
+            const product = response.data;
             return {
               ...item,
-              image: variant.imageUrl,
-              productName: variant.productName,
-              stock: variant.stock,
-              attributes: variant.attributes,
+              image: variant.image,
+              productName: product.name,
+              stock: variant.stockQuantity,
+              attributes: variant.variantAttributes,
               price: variant.price,
             };
           } catch (err) {
+            console.log("err:", err);
             return { ...item, image: "" };
           }
         })
@@ -54,7 +51,8 @@ const OrderItemsGallery = ({ items, onClose, token }) => {
             <div className="text-right font-medium">
               {items
                 .reduce(
-                  (sum, item) => sum + parseFloat(item.price) * item.quantity,
+                  (sum, item) =>
+                    sum + parseFloat(item.totalPrice) * item.quantity,
                   0
                 )
                 .toFixed(2)}{" "}

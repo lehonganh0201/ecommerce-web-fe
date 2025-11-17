@@ -89,3 +89,16 @@ export const getOrders = async (data) => {
     throw new Error("Lấy đơn hàng không thành công");
   }
 };
+
+export const updateStatus = async (data) => {
+  try {
+    const { status, orderId } = data;
+    await request(axiosPrivate, {
+      method: "PUT",
+      url: `/orders/${orderId}?status=${status}`,
+    });
+  } catch (error) {
+    console.error("Lỗi ở cập nhật trạng thái:", error);
+    throw new Error("Cập nhật trạng thái không thành công");
+  }
+};

@@ -203,7 +203,7 @@ const OrderViewModal = ({ order, onClose, token }) => {
             </div>
           ) : (
             <OrderItemsGallery
-              items={order.items}
+              items={order.orderItems}
               onClose={() => setActiveTab("details")}
               token={token}
             />
