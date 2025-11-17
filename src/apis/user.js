@@ -159,3 +159,85 @@ export const deleteAddress = async (id) => {
     throw new Error("Xóa địa chỉ không thành công");
   }
 };
+
+export const getUsers = async (params = {}) => {
+  try {
+    const response = await request(axiosPrivate, {
+      url: "/users",
+      method: "GET",
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách người dùng:", error);
+    throw new Error("Lấy danh sách người dùng không thành công");
+  }
+};
+
+export const getUserById = async (id) => {
+  try {
+    const response = await request(axiosPrivate, {
+      url: `/users/${id}`,
+      method: "GET",
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy thông tin người dùng:", error);
+    throw new Error("Lấy thông tin người dùng không thành công");
+  }
+};
+
+export const updateUser = async (id, data) => {
+  try {
+    const response = await request(axiosPrivate, {
+      url: `/users/${id}`,
+      method: "PATCH",
+      data,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi cập nhật người dùng:", error);
+    throw new Error("Cập nhật người dùng không thành công");
+  }
+};
+
+export const deleteUser = async (id) => {
+  try {
+    const response = await request(axiosPrivate, {
+      url: `/users/${id}`,
+      method: "DELETE",
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi xóa người dùng:", error);
+    throw new Error("Xóa người dùng không thành công");
+  }
+};
+
+export const toggleUserLock = async (id, requestBody) => {
+  try {
+    const response = await request(axiosPrivate, {
+      url: `/users/${id}/lock`,
+      method: "PUT",
+      data: requestBody,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi thay đổi trạng thái khóa:", error);
+    throw new Error("Thay đổi trạng thái khóa không thành công");
+  }
+};
+
+export const changeUserPassword = async (id, requestBody) => {
+  try {
+    const response = await request(axiosPrivate, {
+      url: `/users/${id}/password`,
+      method: "PUT",
+      data: requestBody,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi đổi mật khẩu:", error);
+    throw new Error("Đổi mật khẩu không thành công");
+  }
+};

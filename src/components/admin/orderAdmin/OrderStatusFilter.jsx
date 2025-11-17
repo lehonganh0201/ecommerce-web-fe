@@ -67,9 +67,9 @@ const OrderStatusFilter = ({ statusFilter, onFilterChange }) => {
         Chờ phân công
       </button>
       <button
-        onClick={() => onFilterChange("CANCELED")}
+        onClick={() => onFilterChange("CANCELLED")}
         className={`px-3 py-1 rounded-md text-sm ${
-          statusFilter === "CANCELED"
+          statusFilter === "CANCELLED"
             ? "bg-red-600 text-white"
             : "bg-red-100 text-red-800 hover:bg-red-200"
         }`}

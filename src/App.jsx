@@ -25,6 +25,7 @@ import Order from "./pages/order/Order";
 import ProtectedRoute from "./components/auth/protectedRoute/ProtectedRoute";
 import ChatWidget from "./components/chat/chatWidget/ChatWidget";
 import OrderAdminPage from "./pages/admin/OrderAdminPage";
+import UserAdminPage from "./pages/admin/UserAdminPage";
 
 function App() {
   useEffect(() => {
@@ -123,6 +124,14 @@ function App() {
       element: (
         <ProtectedRoute requiredRole="ROLE_ADMIN">
           <OrderAdminPage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "/admin/accounts",
+      element: (
+        <ProtectedRoute requiredRole="ROLE_ADMIN">
+          <UserAdminPage />
         </ProtectedRoute>
       ),
     },

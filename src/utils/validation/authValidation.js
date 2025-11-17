@@ -26,9 +26,9 @@ export const registerValidationSchema = Yup.object().shape({
     .max(20, "Tên đăng nhập không được quá 20 ký tự"),
   password: Yup.string()
     .required("Mật khẩu không được để trống")
-    .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+    .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{6,}$/,
       "Mật khẩu phải chứa ít nhất 1 chữ in hoa, 1 chữ in thường, 1 ký tự đặc biệt"
     ),
   confirmPassword: Yup.string()
@@ -51,9 +51,9 @@ export const loginValidationSchema = Yup.object().shape({
     ),
   password: Yup.string()
     .required("Mật khẩu không được để trống")
-    .min(8, "Mật khẩu phải có ít nhất 8 ký tự")
+    .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
     .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/,
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{6,}$/,
       "Mật khẩu phải chứa ít nhất 1 chữ in hoa, 1 chữ in thường, 1 ký tự đặc biệt"
     ),
 });
