@@ -4,10 +4,8 @@ import { FaStar, FaRegStar, FaRegStarHalfStroke } from "react-icons/fa6";
 
 import "./InformationDetail.scss";
 import axios from "axios";
-import {
-  getAvgRatingByProductId,
-  getReviewsByProductId,
-} from "@/apis/review";
+import { getAvgRatingByProductId, getReviewsByProductId } from "@/apis/review";
+import { getVariantsByProductId } from "@/apis/variant";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -19,6 +17,7 @@ const InformationDetail = ({
   const [typeMenu, setTypeMenu] = useState("info");
   const [rate, setRate] = useState(0);
   const [comments, setComments] = useState([]);
+  const [variants, setVariants] = useState([]);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -58,6 +57,22 @@ const InformationDetail = ({
     fetchRateAndComments();
   }, [product, isShowAddComment]);
 
+  // LẤY LIST VARIANTS
+  useEffect(() => {
+    const fetchVariants = async () => {
+      try {
+        if (!product?.id) return;
+
+        const res = await getVariantsByProductId(product.id);
+        setVariants(res.data);
+      } catch (err) {
+        console.log("Error fetching variants:", err);
+      }
+    };
+
+    fetchVariants();
+  }, [product]);
+
   const handleClickAddComment = () => {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
@@ -96,6 +111,32 @@ const InformationDetail = ({
       {typeMenu === "info" && (
         <div data-aos="fade-up" className="info">
           {product.description}
+          {/* HIỂN THỊ THUỘC TÍNH VARIANTS */}
+          {variants.length > 0 && (
+            <div className="product-attributes">
+              <table className="attributes-table">
+                <tbody>
+                  <tr>
+                    <td className="attr-name">Mã sản phẩm</td>
+                    <td className="attr-name">{variants[0].id}</td>
+                  </tr>
+                  {Array.from(
+                    new Map(
+                      variants[0].variantAttributes.map((attr) => [
+                        attr.name,
+                        attr,
+                      ])
+                    ).values()
+                  ).map((attr) => (
+                    <tr key={attr.name}>
+                      <td className="attr-name">{attr.name}</td>
+                      <td className="attr-value">{attr.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
       {/* {typeMenu === "exchangePolicy" && (
@@ -155,6 +196,62 @@ const InformationDetail = ({
             </div>
           </div>
         ))}
+
+      {typeMenu === "exchangePolicy" && (
+        <div data-aos="fade-up" className="exchangePolicy">
+          <div className="policy-item">
+            <h4>Đổi trả</h4>
+            <p>
+              Quý khách có thể đổi hoặc trả sản phẩm trong vòng 14 ngày kể từ
+              ngày nhận hàng. Sản phẩm phải còn nguyên tem, nhãn mác, chưa qua
+              sử dụng và còn đầy đủ bao bì.
+            </p>
+          </div>
+
+          <div className="policy-item">
+            <h4>Bảo hành</h4>
+            <p>
+              Sản phẩm được bảo hành 12 tháng đối với các lỗi kỹ thuật từ nhà
+              sản xuất. Các lỗi do người dùng gây ra sẽ không được bảo hành.
+            </p>
+          </div>
+
+          <div className="policy-item">
+            <h4>Vận chuyển</h4>
+            <p>
+              Hỗ trợ giao hàng trên toàn quốc. Miễn phí vận chuyển cho đơn hàng
+              trên 500.000₫. Thời gian giao hàng dự kiến từ 2-5 ngày làm việc
+              tùy khu vực.
+            </p>
+          </div>
+
+          <div className="policy-item">
+            <h4>Hỗ trợ khách hàng</h4>
+            <p>
+              Quý khách vui lòng liên hệ hotline: 1900 1234 hoặc email:
+              support@shop.com.vn để được hỗ trợ nhanh nhất.
+            </p>
+          </div>
+
+          <div className="policy-item">
+            <h4>Khuyến mãi & quà tặng</h4>
+            <p>
+              Các chương trình khuyến mãi và quà tặng đi kèm sản phẩm chỉ áp
+              dụng trong thời gian diễn ra chương trình. Không áp dụng đồng thời
+              với các chương trình giảm giá khác.
+            </p>
+          </div>
+
+          <div className="policy-item">
+            <h4>Lưu ý quan trọng</h4>
+            <p>
+              Sản phẩm giảm giá sâu, hàng outlet, hoặc sản phẩm đã qua khuyến
+              mãi đặc biệt có thể không được đổi trả. Vui lòng đọc kỹ điều kiện
+              trước khi mua.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
