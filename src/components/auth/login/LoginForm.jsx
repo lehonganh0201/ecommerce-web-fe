@@ -32,12 +32,13 @@ const LoginForm = ({ setIsLogin }) => {
       const response = await login(data);
       // const user = await getMe();
       // localStorage.setItem("fullName", user.data.fullName);
-      // if (localStorage.getItem("roles")?.includes("ADMIN")) {
-      //   navigate("/admin/*");
-      // } else {
-      //   navigate("/admin");
-      // }
+
+      console.log(response)
+      if (response?.data.role === "ROLE_ADMIN") {
+        navigate("/admin/");
+      } else {
         navigate("/");
+      }
       toast.success("Đăng nhập thành công");
     } catch (error) {
       console.error("Full login error:", JSON.stringify(error, null, 2));

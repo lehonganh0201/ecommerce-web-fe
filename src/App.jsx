@@ -27,6 +27,7 @@ import ChatWidget from "./components/chat/chatWidget/ChatWidget";
 import OrderAdminPage from "./pages/admin/OrderAdminPage";
 import UserAdminPage from "./pages/admin/UserAdminPage";
 import WarehouseAdminPage from "./pages/admin/WarehouseAdminPage";
+import DashboardAdminPage from "./pages/admin/DashboardAdminPage";
 
 function App() {
   useEffect(() => {
@@ -103,6 +104,14 @@ function App() {
     {
       path: "/verifyOTP",
       element: <VerifyOTP />,
+    },
+    {
+      path: "/admin/",
+      element: (
+        <ProtectedRoute requiredRole="ROLE_ADMIN">
+          <DashboardAdminPage />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "/admin/products",
