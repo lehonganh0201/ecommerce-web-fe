@@ -1,6 +1,6 @@
 .infomation {
   width: 100%;
-  padding: 50px 130px;
+  padding: 50px 250px;
 
   .infomation-menu {
     width: 100%;
@@ -104,6 +104,7 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 20px;
+      justify-content: center;
 
       .comment__have__rate__star {
         display: flex;
@@ -146,8 +147,8 @@
     }
 
     .comment__have__list {
-      width: 100%;
-      max-height: 500px;
+      // width: 100%;
+      max-height: 700px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -314,3 +315,13 @@
     }
   }
 }
+
+
+// // ===========
+// .comment__have, .comment__no{
+//   width: 800px;
+//   display: flex;
+//   justify-content: center;
+//   align-content:flex-start;
+//   flex-direction: column;
+// }

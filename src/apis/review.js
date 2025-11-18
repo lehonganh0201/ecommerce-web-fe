@@ -3,32 +3,26 @@ import { axiosPrivate, axiosPublic } from "@/utils/axios/axiosInstance";
 
 export const getReviewsByProductId = async (data) => {
   try {
-    const {
-      productId,
-      page,
-      size,
-      sortBy,
-      sortDirection,
-      minRating,
-      maxRating,
-    } = data;
-    const response = await request(axiosPublic, {
-      url: `/reviews/${productId}?page=${page ? page : "0"}&size=${
-        size ? size : "20"
-      }${sortBy ? `&sortBy=${sortBy}` : ""}&sortDirection=${
-        sortDirection ? sortDirection : "desc"
-      }${minRating ? `&minRating=${minRating}` : ""}${
-        maxRating ? `&maxRating=${maxRating}` : ""
-      }`,
+    const { productId, page, size, sort, direction, minRating, maxRating } =
+      data;
+    const response = await request(axiosPrivate, {
+      url: `/reviews/product/${productId}?page=${page ?? "0"}&size=${
+        size ?? "20"
+      }${sort ? `&sort=${sort}` : ""}&direction=${direction ?? "desc"}${
+        minRating ? `&minRating=${minRating}` : ""
+      }${maxRating ? `&maxRating=${maxRating}` : ""}`,
+
       method: "GET",
     });
+    console.log("response review", response);
     return response.data;
   } catch (error) {
-    console.log(error);
+    console.log("review error", error);
     throw new Error("Lấy danh sách đánh giá không thành công");
   }
 };
 
+// cái này chưa có hả
 export const getAvgRatingByProductId = async (productId) => {
   try {
     const response = await request(axiosPublic, {
