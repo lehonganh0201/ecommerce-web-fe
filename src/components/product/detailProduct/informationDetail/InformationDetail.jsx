@@ -21,7 +21,10 @@ const InformationDetail = ({
 }) => {
   const [typeMenu, setTypeMenu] = useState("info");
   const [rate, setRate] = useState(0);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState({
+    averageRating: 0,
+    reviews: [],
+  });
   const [variants, setVariants] = useState([]);
 
   const navigate = useNavigate();
@@ -39,8 +42,8 @@ const InformationDetail = ({
         const res = await getReviewsByProductId(reviewParams);
         // setRate(ratingAvgRes.data.averageRating || 0);
         console.log("API response:", res); // Kiểm tra dữ liệu API
-        setComments(res.data || []);
-        setRate(comments.averageRating || []);
+        setComments(res.data || { averageRating: 0, reviews: [] });
+        setRate(res.data?.averageRating || 0);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           switch (error.response.status) {
@@ -75,14 +78,13 @@ const InformationDetail = ({
 
     fetchVariants();
   }, [product]);
-  // console.log(variants);
-  // console.log("review", comments.reviews);
 
   useEffect(() => {
     if (comments && comments.averageRating != null) {
       setRate(comments.averageRating);
     }
   }, [comments]);
+
   const handleClickAddComment = () => {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
@@ -122,7 +124,7 @@ const InformationDetail = ({
         <div data-aos="fade-up" className="info">
           {product.description}
           {/* HIỂN THỊ THUỘC TÍNH VARIANTS */}
-          {variants.length > 0 && (
+          {variants?.length > 0 && (
             <div className="product-attributes">
               <table className="attributes-table">
                 <tbody>
@@ -151,7 +153,7 @@ const InformationDetail = ({
       )}
 
       {typeMenu === "comment" &&
-        (comments.reviews.length === 0 ? (
+        (comments.reviews?.length === 0 ? (
           <div data-aos="fade-up" className="comment__no">
             Chưa có đánh giá nào
             <div className="comment__have__write">
@@ -160,8 +162,6 @@ const InformationDetail = ({
           </div>
         ) : (
           <div data-aos="fade-up" className="comment__have">
-            {/* <h1>{product.name}</h1>
-            <h1>{product.id}</h1> */}
             <div className="comment__have__rate">
               {/* <div className="comment__have__rate__star">
                 <span className="comment__have__rate-number">{rate}</span>
@@ -176,7 +176,9 @@ const InformationDetail = ({
                 </span>
               </div> */}
               <div className="comment__have__rate__star">
-                <span className="comment__have__rate-number">{rate}</span>
+                <span className="comment__have__rate-number">
+                  {<span>{comments.reviews?.length}</span>}
+                </span>
                 <span>
                   {/* Sao đầy */}
                   {Array.from({ length: Math.floor(rate) }, (_, i) => (
@@ -195,7 +197,7 @@ const InformationDetail = ({
               </div>
             </div>
             <div className="comment__have__list">
-              {comments.reviews.map((comment, index) => (
+              {comments.reviews?.map((comment, index) => (
                 <div className="comment__have__item" key={index}>
                   <img
                     src={comment.avatar || "/person.png"}
@@ -221,21 +223,6 @@ const InformationDetail = ({
             </div>
           </div>
         ))}
-      {/* {typeMenu === "comment" && (
-        <>
-          {comments.length > 0 ? (
-            comments.map((review) => (
-              <div key={review.id}>
-                <p>{review.comment}</p>
-                <p>Rating: {review.rating}</p>
-                <p>By: {review.fullName}</p>
-              </div>
-            ))
-          ) : (
-            <p>Chưa có đánh giá nào</p>
-          )}
-        </>
-      )} */}
 
       {typeMenu === "exchangePolicy" && (
         <div data-aos="fade-up" className="exchangePolicy">
