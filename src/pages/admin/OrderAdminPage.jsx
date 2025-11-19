@@ -45,13 +45,15 @@ const OrderAdminPage = () => {
       };
       try {
         const res = await getOrders(data);
+
         setOrders(res.data);
+        console.log("Fetched orders:", res.data);
         setTotalItems(res.meta.totalElements);
         setTotalPage(res.meta.totalPages);
         setHasNext(res.meta.hasNext);
         setHasPrevious(res.meta.hasPrevious);
         setApiPage(res.meta.page);
-        setCurrentPage(apiPage + 1);
+        setCurrentPage(page + 1);
         setItemsPerPage(res.meta.size);
       } catch (err) {
         toast.error(
@@ -69,6 +71,7 @@ const OrderAdminPage = () => {
   const handleSort = (field) => {
     const nextDirection =
       sortBy === field ? (sortDirection === "asc" ? "desc" : "asc") : "asc";
+
     setSortBy(field);
     setSortDirection(nextDirection);
     // Reset to first page when sorting changes
@@ -77,9 +80,14 @@ const OrderAdminPage = () => {
     getAllOrders(0, itemsPerPage);
   };
   const handlePageChange = (page) => {
+    console.log("Requested page change to:", page);
     setApiPage(page - 1);
+    console.log('apiPage set to:', apiPage);
     setCurrentPage(page);
+    console.log('currentPage set to:', currentPage);
     getAllOrders(page - 1, itemsPerPage);
+    console.log("Changing to page:", page);
+    console.log("API page set to:", page - 1);
   };
   const handleItemsPerPageChange = (size) => {
     setItemsPerPage(size);
@@ -96,6 +104,14 @@ const OrderAdminPage = () => {
   const handleExportExcel = () => {
     exportOrdersToExcel(orders);
   };
+
+  useEffect(() => {
+    console.log('apiPage actually updated to:', apiPage);
+  }, [apiPage]);
+
+  useEffect(() => {
+    console.log('currentPage actually updated to:', currentPage);
+  }, [currentPage]);
 
   return (
     <LayoutAdmin>

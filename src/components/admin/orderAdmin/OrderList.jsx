@@ -15,8 +15,17 @@ const OrderList = ({
   onStatusChange,
   onSort,
 }) => {
+  console.log('check',orders,
+  currentPage,
+  ordersPerPage,
+  totalOrders,
+  totalPages,)
   const indexOfLastItem = currentPage * ordersPerPage;
   const indexOfFirstItemOrder = indexOfLastItem - ordersPerPage;
+  console.log("idx of first order", indexOfFirstItemOrder);
+  console.log("idx of last order", indexOfLastItem);
+
+  
   const currentOrders = orders;
 
   return (
@@ -35,7 +44,7 @@ const OrderList = ({
                 Số lượng sản phẩm
               </th>
               <th
-                onClick={() => onSort("orderDate")}
+                onClick={() => onSort("createdAt")}
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
               >
                 Thời gian đặt hàng{" "}

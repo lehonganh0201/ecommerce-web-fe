@@ -6,6 +6,7 @@ import OrderItemsGallery from "./OrderItemsGallery";
 import OrderStatusBadge from "./OrderStatusBadge";
 
 const OrderViewModal = ({ order, onClose, token }) => {
+  console.log("order in modal:", order);
   const [activeTab, setActiveTab] = useState("details");
   const formatDateTime = (dateTime) => {
     const date = new Date(dateTime + "Z");
@@ -161,7 +162,7 @@ const OrderViewModal = ({ order, onClose, token }) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <div className="text-sm text-gray-500 mb-1">
-                        Phương thức thanht toán
+                        Phương thức thanh toán
                       </div>
                       <div>{order.payment.method || "Thẻ thanht toán"}</div>
                     </div>
