@@ -118,7 +118,7 @@ const OrderViewModal = ({ order, onClose, token }) => {
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div className="text-gray-500">Ngày giao hàng:</div>
-                            <div>{order?.estimatedDelivery || "N/A"}</div>
+                            <div>{order?.expectedDeliveryDate || "N/A"}</div>
                           </div>
                         </div>
                       </div>
@@ -137,11 +137,11 @@ const OrderViewModal = ({ order, onClose, token }) => {
                         <div className="mt-2 space-y-2 text-sm">
                           <div className="grid grid-cols-2 gap-2">
                             <div className="text-gray-500">Người nhận:</div>
-                            <div>{order?.user || "N/A"}</div>
+                            <div>{order?.fullName || "N/A"}</div>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div className="text-gray-500">Số điện thoại:</div>
-                            <div>{order?.recipientPhone || "N/A"}</div>
+                            <div>{order?.phoneNumber || "N/A"}</div>
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div className="text-gray-500">Địa chỉ:</div>
