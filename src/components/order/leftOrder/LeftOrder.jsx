@@ -30,9 +30,11 @@ const LeftOrder = ({
     const fetchAddresses = async () => {
       try {
         const response = await getAddresses();
-        setAddresses(response.data);
-        if (response.length > 0) {
-          setAddressOrder(response[0]);
+        const fetchedAddresses = response.data || [];
+        setAddresses(fetchedAddresses);
+        if (fetchedAddresses.length > 0) {
+          const defaultAddress = fetchedAddresses.find(addr => addr.isDefault) || fetchedAddresses[0];
+          handleAddressSelection(defaultAddress);
         }
       } catch (error) {
         console.error("Error fetching addresses:", error);
@@ -74,7 +76,7 @@ const LeftOrder = ({
                 type="radio"
                 name="address"
                 checked={addressOrder?.id === address?.id}
-                onClick={() => handleAddressSelection(address)}
+                onChange={() => handleAddressSelection(address)}
               />
               <div className="leftOrder__address-item-info group">
                 <div>
@@ -204,4 +206,4 @@ const LeftOrder = ({
   );
 };
 
-export default LeftOrder;
+export default LeftOrder; 

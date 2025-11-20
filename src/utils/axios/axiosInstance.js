@@ -90,7 +90,8 @@ axiosPrivate.interceptors.response.use(
         processQueue(error, null);
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        localStorage.removeItem("roles");
+        localStorage.removeItem("role");
+        localStorage.removeItem("fullName");
         // window.location.href = "/auth";
         return Promise.reject(error);
       } finally {
@@ -101,7 +102,8 @@ axiosPrivate.interceptors.response.use(
     if (error.response.status === 401) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      localStorage.removeItem("roles");
+      localStorage.removeItem("role");
+      localStorage.removeItem("fullName");
       // window.location.href = "/auth";
       return Promise.reject(error);
     }
