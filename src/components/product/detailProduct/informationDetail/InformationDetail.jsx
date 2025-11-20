@@ -21,7 +21,10 @@ const InformationDetail = ({
 }) => {
   const [typeMenu, setTypeMenu] = useState("info");
   const [rate, setRate] = useState(0);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState({
+    averageRating: 0,
+    reviews: [],
+  });
   const [variants, setVariants] = useState([]);
 
   const navigate = useNavigate();
@@ -122,7 +125,7 @@ const InformationDetail = ({
         <div data-aos="fade-up" className="info">
           {product.description}
           {/* HIỂN THỊ THUỘC TÍNH VARIANTS */}
-          {variants.length > 0 && (
+          {variants?.length > 0 && (
             <div className="product-attributes">
               <table className="attributes-table">
                 <tbody>

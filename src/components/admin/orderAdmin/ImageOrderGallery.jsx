@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 const ImageOrderGallery = ({ items }) => {
-  const [selectedItem, setSelectedItem] = useState(items[0] || null);
+  console.log("items in ImageOrderGallery:", items[0]);
+
+const [selectedItem, setSelectedItem] = useState(null); 
+useEffect(() => {
+  if (items.length > 0 && !selectedItem) { 
+    setSelectedItem(items[0]);
+  }
+}, [items]); 
+
+console.log("selectedItem:", selectedItem?.imagePrd[0]?.image);
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleItemClick = (item) => {
@@ -23,10 +32,10 @@ const ImageOrderGallery = ({ items }) => {
             className="cursor-pointer rounded-lg overflow-hidden border border-gray-200 aspect-square relative group"
             onClick={() => handleItemClick(item)}
           >
-            {item.image ? (
+            {item  ? (
               <img
-                src={item.image}
-                alt={item.productName || item.name}
+                src={item.image || item?.imagePrd[0]?.image}
+                alt={item.name || item.name}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -61,10 +70,10 @@ const ImageOrderGallery = ({ items }) => {
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="w-full md:w-1/2">
                   <div className="rounded-lg overflow-hidden aspect-square">
-                    {selectedItem.image ? (
+                    {selectedItem ? (
                       <img
-                        src={selectedItem.image}
-                        alt={selectedItem.productName}
+                        src={selectedItem.image || selectedItem?.imagePrd[0]?.image}
+                        alt={selectedItem.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (

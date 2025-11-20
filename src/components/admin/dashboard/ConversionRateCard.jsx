@@ -6,7 +6,7 @@ const ConversionRateCard = ({ conversionRate }) => {
   const { totalCarts = 0, convertedCarts = 0, totalSuccessOrders = 0, conversionRate: rate = 0, details = [] } = conversionRate || {};
 
   // Tính % cho progress bar
-  const conversionPercent = Math.round(rate * 100);
+  const conversionPercent = Math.round(rate);
 
   // Kiểm tra nếu có per-user details (từ param includeDetails=true)
   const hasDetails = details.length > 0;

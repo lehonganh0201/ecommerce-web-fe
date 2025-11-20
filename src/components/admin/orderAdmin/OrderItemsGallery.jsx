@@ -6,6 +6,7 @@ import { getProductByProductId } from "@/apis/product";
 const OrderItemsGallery = ({ items, token }) => {
   const [itemsWithImages, setItemsWithImages] = useState([]);
 
+
   useEffect(() => {
     async function fetchImages() {
       const newItems = await Promise.all(
@@ -15,7 +16,10 @@ const OrderItemsGallery = ({ items, token }) => {
             const res = await getProductByVariantId(item.variantId);
             const variant = res.data;
             const response = await getProductByProductId(variant.productId);
-            const product = response.data;
+            const product = response.data.data;
+
+            console.log("variant:", variant);
+            console.log("product:", product);
             return {
               ...item,
               image: variant.image,
@@ -23,6 +27,7 @@ const OrderItemsGallery = ({ items, token }) => {
               stock: variant.stockQuantity,
               attributes: variant.variantAttributes,
               price: variant.price,
+              imagePrd: product.images,
             };
           } catch (err) {
             console.log("err:", err);
@@ -52,7 +57,7 @@ const OrderItemsGallery = ({ items, token }) => {
               {items
                 .reduce(
                   (sum, item) =>
-                    sum + parseFloat(item.totalPrice) * item.quantity,
+                    sum + parseFloat(item.totalPrice),
                   0
                 )
                 .toFixed(2)}{" "}

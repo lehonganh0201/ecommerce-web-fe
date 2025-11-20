@@ -5,12 +5,12 @@ export const exportOrdersToExcel = (orders, filename = "Orders_Export") => {
     "Order ID": order.reference,
     "Order Date": new Date(order.createdDate).toLocaleDateString(),
     Status: order.status,
-    "Items Count": order.items.length,
+    "Items Count": order.orderItems.length,
     "Total Amount": order.totalAmount,
     "Payment Method": order.paymentMethod || "N/A",
     Recipient: order.recipient || "N/A",
     "Delivery Address": order.deliveryAddress || "N/A",
-    Items: order.items
+    Items: order.orderItems
       .map((item) => `${item.name} (${item.quantity})`)
       .join(", "),
   }));

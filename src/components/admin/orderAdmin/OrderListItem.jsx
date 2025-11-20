@@ -56,8 +56,8 @@ const OrderListItem = ({ order, onView, onStatusChange }) => {
           {order.orderItems
             .slice(0, 2)
             .map((item) => item?.name)
-            .join(", ")}
-          {itemsCount > 2 ? `, +${itemsCount - 2} more` : ""}
+            }
+          
         </div>
       </td>
       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
