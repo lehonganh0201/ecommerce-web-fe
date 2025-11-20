@@ -112,10 +112,10 @@ const CartItem = ({
         />
 
         {/* Ảnh sản phẩm */}
-        {detail?.images?.length > 0 && (
-          <img src={detail.images[0].image} alt={detail.name} />
-        )}
-
+        <img
+          src={detail?.images?.[0]?.image || "/images/default-product.png"}
+          alt={detail?.name || "product"}
+        />
         <div className="card-item__left-info">
           <h3>{detail?.name}</h3>
 
