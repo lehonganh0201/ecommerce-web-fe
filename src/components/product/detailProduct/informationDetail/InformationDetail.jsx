@@ -9,6 +9,11 @@ import { getVariantsByProductId } from "@/apis/variant";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+// const [ratingAvgRes, reviewsRes] = await Promise.all([
+//   // getAvgRatingByProductId(product.id),
+//   getReviewsByProductId(reviewParams),
+// ]);
+
 const InformationDetail = ({
   product,
   setIsShowAddComment,
@@ -16,7 +21,10 @@ const InformationDetail = ({
 }) => {
   const [typeMenu, setTypeMenu] = useState("info");
   const [rate, setRate] = useState(0);
-  const [comments, setComments] = useState([]);
+  const [comments, setComments] = useState({
+    averageRating: 0,
+    reviews: [],
+  });
   const [variants, setVariants] = useState([]);
 
   const navigate = useNavigate();
@@ -24,20 +32,18 @@ const InformationDetail = ({
     const fetchRateAndComments = async () => {
       try {
         const reviewParams = {
-          productId: product.id,
+          productId: BigInt(product.id),
           page: 0,
           size: 20,
-          sortBy: "createdAt",
-          sortDirection: "desc",
+          sort: "createdAt",
+          direction: "desc",
         };
 
-        const [ratingAvgRes, reviewsRes] = await Promise.all([
-          getAvgRatingByProductId(product.id),
-          getReviewsByProductId(reviewParams),
-        ]);
-
-        setRate(ratingAvgRes.data.averageRating || 0);
-        setComments(reviewsRes.data.data);
+        const res = await getReviewsByProductId(reviewParams);
+        // setRate(ratingAvgRes.data.averageRating || 0);
+        console.log("API response:", res); // Kiểm tra dữ liệu API
+        setComments(res.data || { averageRating: 0, reviews: [] });
+        setRate(res.data?.averageRating || 0);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           switch (error.response.status) {
@@ -72,6 +78,12 @@ const InformationDetail = ({
 
     fetchVariants();
   }, [product]);
+
+  useEffect(() => {
+    if (comments && comments.averageRating != null) {
+      setRate(comments.averageRating);
+    }
+  }, [comments]);
 
   const handleClickAddComment = () => {
     const accessToken = localStorage.getItem("accessToken");
@@ -112,7 +124,7 @@ const InformationDetail = ({
         <div data-aos="fade-up" className="info">
           {product.description}
           {/* HIỂN THỊ THUỘC TÍNH VARIANTS */}
-          {variants.length > 0 && (
+          {variants?.length > 0 && (
             <div className="product-attributes">
               <table className="attributes-table">
                 <tbody>
@@ -139,13 +151,9 @@ const InformationDetail = ({
           )}
         </div>
       )}
-      {/* {typeMenu === "exchangePolicy" && (
-        <div data-aos="fade-up" className="exchangePolicy">
-          {product.exchangePolicy}
-        </div>
-      )} */}
+
       {typeMenu === "comment" &&
-        (comments.length === 0 ? (
+        (comments.reviews?.length === 0 ? (
           <div data-aos="fade-up" className="comment__no">
             Chưa có đánh giá nào
             <div className="comment__have__write">
@@ -154,9 +162,8 @@ const InformationDetail = ({
           </div>
         ) : (
           <div data-aos="fade-up" className="comment__have">
-            <h1>{product.name}</h1>
             <div className="comment__have__rate">
-              <div className="comment__have__rate__star">
+              {/* <div className="comment__have__rate__star">
                 <span className="comment__have__rate-number">{rate}</span>
                 <span>
                   {Array.from({ length: Math.floor(rate) }, (_, i) => (
@@ -167,15 +174,35 @@ const InformationDetail = ({
                     <FaRegStar key={i} />
                   ))}
                 </span>
+              </div> */}
+              <div className="comment__have__rate__star">
+                <span className="comment__have__rate-number">
+                  {<span>{comments.reviews?.length}</span>}
+                </span>
+                <span>
+                  {/* Sao đầy */}
+                  {Array.from({ length: Math.floor(rate) }, (_, i) => (
+                    <FaStar key={`full-${i}`} />
+                  ))}
+                  {/* Sao nửa nếu có */}
+                  {rate % 1 !== 0 && <FaRegStarHalfStroke key="half" />}
+                  {/* Sao rỗng */}
+                  {Array.from({ length: 5 - Math.ceil(rate) }, (_, i) => (
+                    <FaRegStar key={`empty-${i}`} />
+                  ))}
+                </span>
               </div>
               <div className="comment__have__rate-count">
-                <span>{comments.length}</span> Đánh giá
+                <span>{comments.reviews.length}</span> Đánh giá
               </div>
             </div>
             <div className="comment__have__list">
-              {comments.map((comment, index) => (
+              {comments.reviews?.map((comment, index) => (
                 <div className="comment__have__item" key={index}>
-                  {/* <img src={comment.avatar} alt={comment.name} /> */}
+                  <img
+                    src={comment.avatar || "/person.png"}
+                    alt={comment.name || ""}
+                  />
                   <div className="comment__have__item-content">
                     <p className="name">{comment.fullName}</p>
                     <div className="rating">
