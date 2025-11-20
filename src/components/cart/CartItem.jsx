@@ -12,16 +12,15 @@ const CartItem = ({
   product,
   setSelectedProducts,
   selectedProducts,
+  variantIds,
+  productDetails,
+  index,
 }) => {
-
-  console.log('product item cart', product)
-  const navigate = useNavigate()
-
+  const detail = productDetails?.[index];
+  console.log("product item cart", product);
+  const navigate = useNavigate();
 
   const handleIncrease = (variantId) => {
-
-
-
     setListProducts((prev) => {
       return prev.map((product) =>
         product.variantId === variantId
@@ -58,24 +57,23 @@ const CartItem = ({
   };
 
   const handleQuantityChange = (e, variantId) => {
-  const newQuantity = Math.max(1, parseInt(e.target.value, 10));  // Đảm bảo số lượng luôn >= 1
-  setListProducts((prev) => {
-    return prev.map((product) =>
-      product.variantId === variantId
-        ? { ...product, quantity: newQuantity }
-        : product
-    );
-  });
+    const newQuantity = Math.max(1, parseInt(e.target.value, 10)); // Đảm bảo số lượng luôn >= 1
+    setListProducts((prev) => {
+      return prev.map((product) =>
+        product.variantId === variantId
+          ? { ...product, quantity: newQuantity }
+          : product
+      );
+    });
 
-  setSelectedProducts((prev) => {
-    return prev.map((product) =>
-      product.variantId === variantId
-        ? { ...product, quantity: newQuantity }
-        : product
-    );
-  });
-};
-
+    setSelectedProducts((prev) => {
+      return prev.map((product) =>
+        product.variantId === variantId
+          ? { ...product, quantity: newQuantity }
+          : product
+      );
+    });
+  };
 
   const handleClickCheckbox = (variantId) => {
     setSelectedProducts((prev) => {
@@ -113,10 +111,14 @@ const CartItem = ({
           onChange={() => handleClickCheckbox(product.variantId)}
         />
 
-        <img src={product.imageUrl} alt="product" />
-
+        {/* Ảnh sản phẩm */}
+        <img
+          src={detail?.images?.[0]?.image || "/images/default-product.png"}
+          alt={detail?.name || "product"}
+        />
         <div className="card-item__left-info">
-          <h3>{product.productName}</h3>
+          <h3>{detail?.name}</h3>
+
           {product.attributes &&
             product.attributes.map((attribute, index) => (
               <p key={index}>
@@ -124,19 +126,20 @@ const CartItem = ({
               </p>
             ))}
           <p className="price">
+            {/* Gia cua mot san pham */}
             <span className="sale">{formatNumber(product.price)} đ</span>
             {/* <span className="real">{formatNumber(product.price)} đ</span> */}
           </p>
           <div className="quantity">
-  <button onClick={() => handleDecrease(product.variantId)}>-</button>
-  <input 
-    type="number" 
-    value={product.quantity} 
-    onChange={(e) => handleQuantityChange(e, product.variantId)} 
-    min="1"  // Đảm bảo số lượng không nhỏ hơn 1
-  />
-  <button onClick={() => handleIncrease(product.variantId)}>+</button>
-</div>
+            <button onClick={() => handleDecrease(product.variantId)}>-</button>
+            <input
+              type="number"
+              value={product.quantity}
+              onChange={(e) => handleQuantityChange(e, product.variantId)}
+              min="1" // Đảm bảo số lượng không nhỏ hơn 1
+            />
+            <button onClick={() => handleIncrease(product.variantId)}>+</button>
+          </div>
           <p className="price__res">
             {formatNumber(product.quantity * product.price)} đ
           </p>
@@ -152,9 +155,9 @@ const CartItem = ({
             className="icon-cancel"
             onClick={() => handleClickDelete(product.variantId)}
           />
-          <div className="search" onClick={()=>navigate('/')}>
+          <div className="search" onClick={() => navigate("/")}>
             <p>Tìm kiếm sản phẩm tương tự</p>
-            <FaCaretDown className="icon-down" /> 
+            <FaCaretDown className="icon-down" />
           </div>
         </div>
       </div>
