@@ -10,6 +10,7 @@ import { createdOrder } from "@/apis/order";
 import { toast } from "react-toastify";
 
 const RightOrder = ({ orderInformation, setOrderInformation }) => {
+  console.log("RightOrder ~ orderInformation:", orderInformation);
   const selectedProducts = useSelector((state) => state.order.orderList);
   const totalPrice = useSelector((state) => state.order.totalPrice);
   const [price, setPrice] = useState(totalPrice);

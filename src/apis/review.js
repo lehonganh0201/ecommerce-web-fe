@@ -5,7 +5,7 @@ export const getReviewsByProductId = async (data) => {
   try {
     const { productId, page, size, sort, direction, minRating, maxRating } =
       data;
-    const response = await request(axiosPrivate, {
+    const response = await request(axiosPublic, {
       url: `/reviews/product/${productId}?page=${page ?? "0"}&size=${
         size ?? "20"
       }${sort ? `&sort=${sort}` : ""}&direction=${direction ?? "desc"}${
@@ -36,22 +36,20 @@ export const getAvgRatingByProductId = async (productId) => {
   }
 };
 
-export const createReview = async (data) => {
+export const createReview = async (formData) => {
   try {
-    const { productId, rating, comment } = data;
-    const response = await requestWithToken(axiosPublic, {
+    const response = await request(axiosPrivate, {
       url: `/reviews`,
       method: "POST",
-      data: {
-        productId,
-        rating,
-        comment,
+      data: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
     });
 
     return response.data;
   } catch (error) {
-    console.log(error);
+    console.error("Lỗi tạo đánh giá:", error);
     throw new Error("Tạo đánh giá không thành công");
   }
 };

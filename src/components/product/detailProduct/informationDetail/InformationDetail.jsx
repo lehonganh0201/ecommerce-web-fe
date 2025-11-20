@@ -24,6 +24,7 @@ const InformationDetail = ({
   const [comments, setComments] = useState({
     averageRating: 0,
     reviews: [],
+    totalReviews: 0, // Đảm bảo có field này nếu API trả về
   });
   const [variants, setVariants] = useState([]);
 
@@ -42,8 +43,14 @@ const InformationDetail = ({
         const res = await getReviewsByProductId(reviewParams);
         // setRate(ratingAvgRes.data.averageRating || 0);
         console.log("API response:", res); // Kiểm tra dữ liệu API
-        setComments(res.data || []);
-        setRate(comments.averageRating || []);
+        setComments({
+          averageRating: res.data?.averageRating || 0,
+          reviews: res.data?.reviews || [],
+          totalReviews: res.data?.totalReviews || 0,
+        });
+        setRate(res.data?.averageRating || 0);
+
+        console.log("Fetched comments:", comments);
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           switch (error.response.status) {
@@ -96,6 +103,10 @@ const InformationDetail = ({
       setIsShowAddComment(true);
     }
   };
+
+  // Fix: Chỉ hiển thị nút nếu product.canReview === true (người dùng có quyền review)
+  // Bỏ logic cũ dựa trên totalReviews, vì nút nên dựa vào quyền review cá nhân
+  const shouldShowAddCommentButton = product.canReview === true;
 
   return (
     <div className="infomation">
@@ -157,9 +168,11 @@ const InformationDetail = ({
         (comments.reviews.length === 0 ? (
           <div data-aos="fade-up" className="comment__no">
             Chưa có đánh giá nào
-            <div className="comment__have__write">
-              <button onClick={handleClickAddComment}>Viết đánh giá</button>
-            </div>
+            {shouldShowAddCommentButton && (
+              <div className="comment__have__write">
+                <button onClick={handleClickAddComment}>Viết đánh giá</button>
+              </div>
+            )}
           </div>
         ) : (
           <div data-aos="fade-up" className="comment__have">
@@ -194,7 +207,7 @@ const InformationDetail = ({
                 </span>
               </div>
               <div className="comment__have__rate-count">
-                <span>{comments.reviews.length}</span> Đánh giá
+                <span>{comments.totalReviews || comments.reviews.length}</span> Đánh giá
               </div>
             </div>
             <div className="comment__have__list">
@@ -215,13 +228,25 @@ const InformationDetail = ({
                       ))}
                     </div>
                     <p className="content">{comment.comment}</p>
+                    {/* Phần hiển thị ảnh đánh giá nếu có */}
+                    {comment.image && (
+                      <div className="comment__review-image">
+                        <img
+                          src={comment.image}
+                          alt="Ảnh đánh giá"
+                          className="review-image"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
-            <div className="comment__have__write">
-              <button onClick={handleClickAddComment}>Viết đánh giá</button>
-            </div>
+            {shouldShowAddCommentButton && (
+              <div className="comment__have__write">
+                <button onClick={handleClickAddComment}>Viết đánh giá</button>
+              </div>
+            )}
           </div>
         ))}
       {/* {typeMenu === "comment" && (

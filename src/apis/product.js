@@ -152,7 +152,7 @@ export const getProductByProductId = async (id) => {
 
 export const getProductById = async (productId) => {
   try {
-    const response = await request(axiosPublic, {
+    const response = await request(axiosPrivate, {
       url: `/products/${productId}`,
       method: "GET",
     });

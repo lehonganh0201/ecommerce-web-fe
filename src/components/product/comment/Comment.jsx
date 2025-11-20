@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,72 +9,13 @@ import { getAllProducts } from "@/apis/product";
 import { getReviewsByProductId } from "@/apis/review";
 
 const Comment = () => {
-  // const reviews = [
-  //   {
-  //     product: {
-  //       name: "Aqua 9.8 kg ",
-  //       image: [
-  //         "https://bizweb.dktcdn.net/thumb/large/100/534/571/products/sp3-2-c140d0a9-b56c-4166-8f5b-3da0c917eba6.jpg?v=1731513403483",
-  //         "https://bizweb.dktcdn.net/thumb/large/100/534/571/products/sp3-5-77cd757d-c5cb-4c38-afa9-ccd0c42b16d5.jpg?v=1731513403483",
-  //       ],
-  //     },
-  //     comments: [
-  //       {
-  //         name: "Hồng Mến",
-  //         job: "Kinh doanh",
-  //         comment:
-  //           "Tôi mới mua một bộ trang phục từ cửa hàng của họ và cảm thấy hoàn toàn hài lòng. Chất liệu vải rất mềm mại và thoáng khí.",
-  //         rating: 5,
-  //         avatar:
-  //           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4Cp0JO-s03hFKGZ2WgyO4luH1JSSzcB0ZA&s",
-  //       },
-  //       {
-  //         name: "Trần Minh",
-  //         job: "Nhân viên văn phòng",
-  //         comment: "Sản phẩm đẹp, giống hình, chất lượng tốt.",
-  //         rating: 4,
-  //         avatar:
-  //           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4Cp0JO-s03hFKGZ2WgyO4luH1JSSzcB0ZA&s",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     product: {
-  //       name: "Panasonic Inverter giặt 10.5 kg",
-  //       image: [
-  //         "https://bizweb.dktcdn.net/thumb/large/100/534/571/products/sp8-2-b6da4946-d566-436c-bb78-02b179755959.jpg?v=1731320140383",
-  //         "https://bizweb.dktcdn.net/thumb/large/100/534/571/products/sp8-5-05c1c474-ce3f-4eec-963e-23a6751e0953.jpg?v=1731320140383",
-  //       ],
-  //     },
-  //     comments: [
-  //       {
-  //         name: "Ngọc Lan",
-  //         job: "Sinh viên",
-  //         comment:
-  //           "Giá cả hợp lý, thiết kế thời trang, sẽ ủng hộ shop lần sau.",
-  //         rating: 5,
-  //         avatar:
-  //           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4Cp0JO-s03hFKGZ2WgyO4luH1JSSzcB0ZA&s",
-  //       },
-  //       {
-  //         name: "Hoàng Anh",
-  //         job: "Thiết kế đồ họa",
-  //         comment: "Áo đẹp, chất vải mát, rất ưng ý!",
-  //         rating: 5,
-  //         avatar:
-  //           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4Cp0JO-s03hFKGZ2WgyO4luH1JSSzcB0ZA&s",
-  //       },
-  //     ],
-  //   },
-  // ];
-
   const [reviews, setReviews] = useState([]);
+  const [products, setProducts] = useState([]);
 
+  // Fetch comments by product ID
   const fetchComments = async (productId) => {
     try {
-      const data = {
-        productId,
-      };
+      const data = { productId };
       const response = await getReviewsByProductId(data);
       return response.data.content;
     } catch (error) {
@@ -83,6 +23,7 @@ const Comment = () => {
     }
   };
 
+  // Fetch all products and reviews
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -95,46 +36,46 @@ const Comment = () => {
         };
 
         const response = await getAllProducts(data);
-
         const productList = response.data.data || [];
-        
+
+        // Get reviews for each product
         const listReview = await Promise.all(
           productList.map(async (product) => {
             const commentsRaw = await fetchComments(product.id);
             const comments = commentsRaw.map((comment) => ({
               name: comment.fullName,
               comment: comment.comment,
-              rating: Math.min(5, comment.rating), // Giới hạn tối đa 5 sao
+              rating: Math.min(5, comment.rating),
               avatar:
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4Cp0JO-s03hFKGZ2WgyO4luH1JSSzcB0ZA&s", // dùng ảnh mặc định
-              job: "Khách hàng", // nếu không có, dùng mặc định
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTm4Cp0JO-s03hFKGZ2WgyO4luH1JSSzcB0ZA&s",
+              job: "Khách hàng",
             }));
 
             return {
               product: {
                 name: product?.name,
                 image: product?.images?.length > 0 ? product?.images : ["", ""],
+                canReview: product?.canReview || false,
               },
               comments,
             };
           })
         );
 
-        // Lọc ra những sản phẩm có đánh giá
+        // Filter out products with reviews and sort by the number of reviews
         const filteredReviews = listReview.filter(
           (review) => review.comments.length > 0
         );
-        // Sắp xếp theo thứ tự nhiều đánh giá nhất
         filteredReviews.sort(
           (a, b) => b.comments.length - a.comments.length
         );
 
-        setReviews(filteredReviews.slice(0, 5)); // Lấy 5 sản phẩm có đánh giá nhiều nhất
-
+        setProducts(filteredReviews.slice(0, 5));
       } catch (error) {
         console.log(error);
       }
     };
+
     fetchReviews();
   }, []);
 
@@ -148,9 +89,8 @@ const Comment = () => {
         modules={[Autoplay]}
         className="swiper-reviews__list"
       >
-        {reviews.map((review, index) => (
+        {products.map((review, index) => (
           <SwiperSlide className="swiper-reviews__item" key={index}>
-            {/* image */}
             <div className="swiper-reviews__item-image">
               <img
                 src={review.product.image[0].imageUrl}
@@ -165,11 +105,13 @@ const Comment = () => {
                 />
               )}
             </div>
-            {/* comment */}
+
             <div className="swiper-reviews__item-comment">
               <h1 className="swiper-reviews__item-comment-title">
                 ĐÁNH GIÁ CỦA KHÁCH HÀNG
               </h1>
+
+              {/* Swiper for reviews */}
               <Swiper
                 slidesPerView={1}
                 loop={true}
