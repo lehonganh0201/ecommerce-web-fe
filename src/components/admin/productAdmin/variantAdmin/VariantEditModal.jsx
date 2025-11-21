@@ -1,19 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { X } from "lucide-react";
 import VariantImageUploader from "./VariantImageUploader";
 import { updateVariant } from "@/apis/variant";
-const ATTRIBUTE_TYPES = [
-  {
-    value: "COLOR",
-    label: "Màu sắc",
-  },
-  {
-    value: "SIZE",
-    label: "Kích cỡ",
-  },
-];
+import { getDistinctAttributeNames, getDistinctAttributeValuesByName } from "@/apis/attribute"; // Import new API functions
 
 const VariantEditModal = ({
   isOpen,
@@ -23,7 +13,6 @@ const VariantEditModal = ({
   token,
   reloadProduct,
 }) => {
-
   const [name, setName] = useState("");
   const [value, setValue] = useState("");
 
@@ -34,6 +23,12 @@ const VariantEditModal = ({
     imageFile: null,
     attributes: variant?.attributes || variant?.variantAttributes || [],
   });
+
+  // States for dynamic attributes
+  const [attributeNames, setAttributeNames] = useState([]);
+  const [attributeValues, setAttributeValues] = useState([]);
+  const [loadingAttributes, setLoadingAttributes] = useState(false);
+  const [loadingValues, setLoadingValues] = useState(false);
 
   // Normalize attributes - ensure all have 'name' field
   const normalizeAttributes = (attrs) => {
@@ -49,14 +44,93 @@ const VariantEditModal = ({
   };
 
   const normalizedAttributes = normalizeAttributes(form.attributes);
-  const colorAttributes = normalizedAttributes.filter(
-    (attr) => attr.name === "COLOR"
-  );
-  const sizeAttributes = normalizedAttributes.filter(
-    (attr) => attr.name === "SIZE"
-  );
   const [editingAttribute, setEditingAttribute] = useState(null);
   const [attributeId, setAttributeId] = useState(null);
+
+  // Fetch distinct attribute names using new API
+  const fetchAttributeNames = async (searchTerm = "") => {
+    setLoadingAttributes(true);
+    try {
+      const response = await getDistinctAttributeNames(searchTerm);
+      if (response.status === "SUCCESS") {
+        setAttributeNames(response.data || []);
+      } else {
+        toast.error("Lỗi khi tải danh sách thuộc tính");
+      }
+    } catch (err) {
+      toast.error(`Lỗi: ${err.message}`);
+      console.error(err);
+    } finally {
+      setLoadingAttributes(false);
+    }
+  };
+
+  // Fetch distinct attribute values by name using new API
+  const fetchAttributeValues = async (attrName) => {
+    if (!attrName) {
+      setAttributeValues([]);
+      return;
+    }
+    setLoadingValues(true);
+    try {
+      const response = await getDistinctAttributeValuesByName(attrName);
+      if (response.status === "SUCCESS") {
+        setAttributeValues(response.data || []);
+      } else {
+        toast.error("Lỗi khi tải giá trị thuộc tính");
+      }
+    } catch (err) {
+      toast.error(`Lỗi: ${err.message}`);
+      console.error(err);
+    } finally {
+      setLoadingValues(false);
+    }
+  };
+
+  // Debounce function for name input search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (name) {
+        fetchAttributeNames(name); // Search as user types
+      } else {
+        fetchAttributeNames(); // Fetch all if empty
+      }
+    }, 800); // Tăng debounce lên 800ms để chỉ recommend khi ngừng nhập lâu hơn
+
+    return () => clearTimeout(timer);
+  }, [name]);
+
+  // Debounce for fetching values when name changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (name) {
+        fetchAttributeValues(name);
+      } else {
+        setAttributeValues([]);
+      }
+    }, 800); // Tăng debounce lên 800ms cho values
+
+    return () => clearTimeout(timer);
+  }, [name]);
+
+  // Fetch names on modal open
+  useEffect(() => {
+    if (isOpen) {
+      fetchAttributeNames();
+    }
+  }, [isOpen]);
+
+  // When editing, set name and fetch values
+  useEffect(() => {
+    if (editingAttribute) {
+      setName(editingAttribute.name || "");
+      setValue(editingAttribute.value || "");
+      // Fetch values for the editing name
+      if (editingAttribute.name) {
+        fetchAttributeValues(editingAttribute.name);
+      }
+    }
+  }, [editingAttribute]);
 
   if (!isOpen || !variant) return null;
 
@@ -119,8 +193,8 @@ const VariantEditModal = ({
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value: inputValue } = e.target;
+    setForm((prev) => ({ ...prev, [name]: inputValue }));
   };
 
   const handleDeleteAttribute = async (attributeToDelete) => {
@@ -182,7 +256,7 @@ const VariantEditModal = ({
     try {
       // Create new attribute object with name and value
       const newAttribute = {
-        name: name, // Use name (COLOR/SIZE)
+        name: name,
         value: value,
       };
       
@@ -248,7 +322,7 @@ const VariantEditModal = ({
         if (isMatch) {
           return {
             ...attr,
-            name: name, // Use name (COLOR/SIZE)
+            name: name,
             value: value,
           };
         }
@@ -380,37 +454,8 @@ const VariantEditModal = ({
             <label className="block text-sm font-medium mb-1">Thuộc tính</label>
             <div className="flex gap-4">
               <div className="flex-1">
-                <div className="font-semibold mb-1">Màu sắc</div>
-                {colorAttributes.map((attr, idx) => (
-                  <div
-                    key={attr.id || idx}
-                    className="flex items-center gap-2 mb-1"
-                  >
-                    <span
-                      className=" rounded-bl-xs cursor-pointer bg-gray-400 w-auto p-1 m-1 text-white hover:text-indigo-500 hover:bg-white duration-200 hover:border"
-                      onClick={() => {
-                        setEditingAttribute(attr);
-                        setName(attr.name || "COLOR");
-                        setValue(attr.value);
-                        setAttributeId(attr.id);
-                      }}
-                    >
-                      {attr.value}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteAttribute(attr)}
-                      className="text-red-500 cursor-pointer hover:text-red-800 duration-200"
-                      title="Xóa thuộc tính"
-                    >
-                      &times;
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold mb-1">Kích cỡ</div>
-                {sizeAttributes.map((attr, idx) => (
+                <div className="font-semibold mb-1">Danh sách thuộc tính hiện tại</div>
+                {normalizedAttributes.map((attr, idx) => (
                   <div
                     key={attr.id || idx}
                     className="flex items-center gap-2 mb-1"
@@ -419,12 +464,10 @@ const VariantEditModal = ({
                       className="rounded-bl-xs cursor-pointer bg-gray-400 w-auto p-1 m-1 text-white hover:text-indigo-500 hover:bg-white duration-200 hover:border"
                       onClick={() => {
                         setEditingAttribute(attr);
-                        setName(attr.name || "SIZE");
-                        setValue(attr.value);
                         setAttributeId(attr.id);
                       }}
                     >
-                      {attr.value}
+                      {attr.name}: {attr.value}
                     </span>
                     <button
                       type="button"
@@ -439,33 +482,47 @@ const VariantEditModal = ({
               </div>
             </div>
             <div className="flex gap-2 items-center">
-              <select
+              <input
+                type="text"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border-none border-orange-600 bg-amber-500 text-white rounded px-2 py-1"
-              >
-                <option value="">Chọn loại thuộc tính</option>
-                {ATTRIBUTE_TYPES.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setValue(""); // Reset value when name changes
+                }}
+                list={loadingAttributes ? undefined : "name-list"} // Không show datalist khi đang loading
+                placeholder="Chọn hoặc nhập loại thuộc tính mới"
+                disabled={loadingAttributes}
+                className="border focus:outline-none focus:ring-0 focus:border-red-700 border-orange-600 rounded px-2 py-1 flex-1"
+              />
+              <datalist id="name-list">
+                {attributeNames.map((attrName) => (
+                  <option key={attrName} value={attrName} />
                 ))}
-              </select>
+              </datalist>
               <input
                 type="text"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                placeholder="Nhập giá trị"
-                className="border focus:outline-none focus:ring-0 focus:border-red-700 border-orange-600 rounded px-2 py-1"
+                list={loadingValues ? undefined : "value-list"} // Không show datalist khi đang loading
+                placeholder="Chọn hoặc nhập giá trị"
+                disabled={loadingValues || !name}
+                className="border focus:outline-none focus:ring-0 focus:border-red-700 border-orange-600 rounded px-2 py-1 flex-1"
               />
+              <datalist id="value-list">
+                {attributeValues.map((attrValue) => (
+                  <option key={attrValue} value={attrValue} />
+                ))}
+              </datalist>
             </div>
+            {loadingAttributes && <p className="text-sm text-gray-500">Đang tải danh sách thuộc tính...</p>}
+            {loadingValues && <p className="text-sm text-gray-500">Đang tải gợi ý giá trị...</p>}
             <button
-              disabled={!name || !value}
+              disabled={!name || !value || loadingAttributes || loadingValues}
               type="button"
               onClick={
                 editingAttribute ? handleUpdateAttribute : handleAddAttribute
               }
-              className="mt-2 px-2 py-1 bg-green-500 text-white rounded cursor-pointer hover:bg-green-600 duration-200"
+              className="mt-2 px-2 py-1 bg-green-500 text-white rounded cursor-pointer hover:bg-green-600 duration-200 disabled:opacity-50"
             >
               {editingAttribute ? "Cập nhật thuộc tính" : "Thêm thuộc tính"}
             </button>

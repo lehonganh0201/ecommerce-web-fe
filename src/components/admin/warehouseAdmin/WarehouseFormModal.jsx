@@ -115,7 +115,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSubmit, initialData, formType }
 
   const fetchManagers = async () => {
     try {
-      const res = await getUsers({ page: 0, size: 100 });
+      const res = await getUsers({ page: 0, size: 100, roleName: "ROLE_WAREHOUSE_MANAGER", enabled: true, locked: false });
       setManagers(res.data || []);
     } catch (err) {
       console.error("Error fetching managers:", err);

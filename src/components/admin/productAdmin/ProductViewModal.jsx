@@ -152,7 +152,7 @@ const ProductViewModal = ({ product, onClose, onEdit, token }) => {
                     Cập nhật lần cuối{" "}
                   </div>
                   <div className="font-medium">
-                    {formatDateTime(productView.createdDate)}
+                    {formatDateTime(productView.createdAt)}
                   </div>
                 </div>
                 <div>

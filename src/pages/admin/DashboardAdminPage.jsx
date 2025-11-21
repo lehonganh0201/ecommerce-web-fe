@@ -55,9 +55,11 @@ const DashboardAdminPage = () => {
         topAttributes: null,
     });
     const [loading, setLoading] = useState(true);
+    const toUTC7 = (date) => new Date(date.getTime() + 7 * 60 * 60 * 1000).toISOString();
+
     const [dateRange, setDateRange] = useState({
-        fromDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        toDate: new Date().toISOString(),
+        fromDate: toUTC7(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
+        toDate: toUTC7(new Date()),
     });
 
     const fetchAllStats = async () => {
