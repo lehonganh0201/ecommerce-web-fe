@@ -45,7 +45,9 @@ const RightSession = ({ product }) => {
   const handleLike = () => {
     let updatedLikeProducts;
     if (isLiked) {
-      updatedLikeProducts = likeProducts.filter((item) => item.id !== product.id);
+      updatedLikeProducts = likeProducts.filter(
+        (item) => item.id !== product.id
+      );
       toast.info("Đã xóa khỏi danh sách yêu thích");
     } else {
       updatedLikeProducts = [...likeProducts, product];
@@ -56,7 +58,7 @@ const RightSession = ({ product }) => {
   };
 
   const handleClickAddToCart = async (e) => {
-    e.stopPropagation();
+    e?.stopPropagation();
 
     const accessToken = localStorage.getItem("accessToken");
     const quantityToAdd = Number(infoSelect.quantity) || 1;
@@ -128,33 +130,50 @@ const RightSession = ({ product }) => {
   };
 
   const handleClickBuy = async () => {
-    const variantId = infoSelect.variantId || variants[0]._id;
     const quantityToAdd = Number(infoSelect.quantity) || 1;
 
-    const existingProduct = orderListProducts.find(
-      (item) => item.variantId === variantId
-    );
+    // Tìm variant được chọn hoặc lấy variant đầu tiên
+    const selectedVariant =
+      variants.find(
+        (v) => v.id === infoSelect.variantId || v._id === infoSelect.variantId
+      ) || variants[0];
 
-    let updatedProducts;
-
-    if (!existingProduct) {
-      const newProduct = {
-        ...product,
-        variantId,
-        quantity: quantityToAdd,
-      };
-      updatedProducts = [...orderListProducts, newProduct];
-    } else {
-      updatedProducts = orderListProducts.map((item) =>
-        item.variantId === variantId
-          ? { ...item, quantity: item.quantity + quantityToAdd }
-          : item
-      );
+    if (!selectedVariant) {
+      toast.error("Vui lòng chọn phân loại sản phẩm");
+      return;
     }
 
-    dispatch(setOrderList(updatedProducts));
+    const variantId = selectedVariant.id || selectedVariant._id;
+
+    if (!variantId) {
+      toast.error("Không tìm thấy biến thể sản phẩm");
+      return;
+    }
+
+    // Tạo product với đầy đủ thông tin giống như trong Cart
+    // Chỉ set sản phẩm hiện tại, không merge với giỏ hàng
+    const newProduct = {
+      ...product,
+      variantId,
+      quantity: quantityToAdd,
+      productName: product.name,
+      price: selectedVariant.price || infoSelect.price || product.basePrice,
+      imageUrl:
+        selectedVariant.imageUrl ||
+        selectedVariant.images?.[0]?.image ||
+        product.images?.[0]?.image,
+      images: selectedVariant.images || product.images || [],
+      attributes: selectedVariant.attributes || product.attributes || [],
+      stock:
+        selectedVariant.stock ||
+        selectedVariant.stockQuantity ||
+        infoSelect.stock,
+    };
+
+    // Chỉ set sản phẩm hiện tại, không merge với giỏ hàng
+    dispatch(setOrderList([newProduct]));
     await handleClickAddToCart();
-    navigate("/cart");
+    navigate("/order");
   };
 
   const benefits = [
@@ -186,20 +205,20 @@ const RightSession = ({ product }) => {
     navigate(`/search?searchKeyword=${encodedQuery}`);
   };
 
-
   return (
     <div className="right-session">
       <div className="right-session__product-name">
         <h1>{product.name}</h1>
         <div
-          className={`right-session__product-name__icons ${isLiked ? "liked" : ""
-            }`}
+          className={`right-session__product-name__icons ${
+            isLiked ? "liked" : ""
+          }`}
           onClick={handleLike}
         >
           {isLiked ? (
-            <FaHeart color="#ff4d4f" fontSize='24px' />
+            <FaHeart color="#ff4d4f" fontSize="24px" />
           ) : (
-            <FaRegHeart color="#555" fontSize='24px' />
+            <FaRegHeart color="#555" fontSize="24px" />
           )}
         </div>
       </div>
@@ -229,12 +248,13 @@ const RightSession = ({ product }) => {
                       type: attribute.value,
                       price: type.price,
                       variantId: type._id,
-                      stock: type.stock
+                      stock: type.stock,
                     })
                   }
                   key={attrIndex}
-                  className={`${infoSelect.type === attribute.value ? "active" : ""
-                    }`}
+                  className={`${
+                    infoSelect.type === attribute.value ? "active" : ""
+                  }`}
                 >
                   {attribute.value}
                 </button>
