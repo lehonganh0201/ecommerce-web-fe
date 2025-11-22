@@ -35,7 +35,17 @@ const RightOrder = ({ orderInformation, setOrderInformation }) => {
       try {
         if (token && selectedProductsFromStore.length > 0) {
           // Nếu đã đăng nhập và có orderList từ store, fetch chi tiết dựa trên variantIds
-          const variantIdsFromStore = selectedProductsFromStore.map(item => item.variantId);
+          const variantIdsFromStore = selectedProductsFromStore
+            .map(item => item.variantId)
+            .filter(id => id !== undefined && id !== null); // Lọc bỏ undefined/null
+          
+          if (variantIdsFromStore.length === 0) {
+            // Nếu không có variantId hợp lệ, dùng store data trực tiếp
+            setProducts(selectedProductsFromStore);
+            setPrice(totalPriceFromStore);
+            return;
+          }
+          
           setVariantIds(variantIdsFromStore);
 
           // === Gọi API variant để lấy productId ===
@@ -52,15 +62,29 @@ const RightOrder = ({ orderInformation, setOrderInformation }) => {
           const productList = productResList.map((res) => res.data);
           setProductDetails(productList);
 
+          // Tạo map từ variantId sang productDetail để merge đúng
+          const variantToProductMap = new Map();
+          variantIdsFromStore.forEach((variantId, index) => {
+            if (productList[index]) {
+              variantToProductMap.set(variantId, productList[index]);
+            }
+          });
+
           // Merge chi tiết vào products (dựa trên orderList)
-          const mergedProducts = selectedProductsFromStore.map((storeItem, index) => ({
-            ...storeItem,
-            ...productList[index],  // Merge name, imageUrl, attributes, price từ productDetails
-            productName: productList[index]?.name || storeItem.productName,
-            imageUrl: productList[index]?.imageUrl || storeItem.imageUrl,
-            attributes: productList[index]?.attributes || storeItem.attributes || [],
-            price: productList[index]?.price || storeItem.price,
-          }));
+          const mergedProducts = selectedProductsFromStore
+            .filter(item => item.variantId) // Chỉ lấy các sản phẩm có variantId hợp lệ
+            .map((storeItem) => {
+              const productDetail = variantToProductMap.get(storeItem.variantId);
+              return {
+                ...storeItem,
+                ...productDetail,  // Merge name, imageUrl, attributes, price từ productDetails
+                productName: productDetail?.name || storeItem.productName || storeItem.name,
+                imageUrl: productDetail?.imageUrl || storeItem.imageUrl,
+                images: productDetail?.images || storeItem.images || [],
+                attributes: productDetail?.attributes || storeItem.attributes || [],
+                price: productDetail?.price || storeItem.price,
+              };
+            });
           setProducts(mergedProducts);
           setPrice(totalPriceFromStore);  // Hoặc recalculate từ merged
 
@@ -159,7 +183,7 @@ const RightOrder = ({ orderInformation, setOrderInformation }) => {
         {products.length > 0 ? (
           products.map((product, index) => (
             <div key={`${product.variantId}-${index}`} className="rightOrder__list-item">
-              <img src={product.images[0].image || product.image} alt={product.productName || product.name} />
+              <img src={product.images?.[0]?.image || product.imageUrl || product.image || ""} alt={product.productName || product.name} />
               <div className="rightOrder__list-item-info">
                 <p>{product.productName || product.name}</p>
                 {product.attributes && product.attributes.length > 0 && product.attributes.map((attribute, attrIndex) => (
