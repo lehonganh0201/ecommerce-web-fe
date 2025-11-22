@@ -5,41 +5,66 @@ import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 
 const UpdateAddress = ({ editAddress, setEditAddress }) => {
-  const [addressDetail, setAddressDetail] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
   const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [wards, setWards] = useState([]);
   const [selectedProvince, setSelectedProvince] = useState("");
+  const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [wards, setWards] = useState([]);
   const [selectedWard, setSelectedWard] = useState("");
-  const [newAddress, setNewAddress] = useState({
+  const [addressDetail, setAddressDetail] = useState({
+    phoneNumber: "",
     street: "",
-    city: "",
-    state: "",
-    country: "Việt Nam",
-    zipCode: "1000",
-    description: addressDetail.description || "",
-    phoneNumber: addressDetail.phoneNumber || "",
-    id: editAddress.id,
+    houseNumber: "",
+    description: "",
+    isDefault: false,
+    fullAddress: "",
   });
 
   useEffect(() => {
     const fetchAddressDetail = async () => {
       try {
         const response = await getAddressesById(editAddress.id);
-        setAddressDetail(response.data);
-        setNewAddress({
-          ...newAddress,
-          description: response.data.description || "",
-          phoneNumber: response.data.phoneNumber || "",
+        const data = response.data;
+        setAddressDetail({
+          phoneNumber: data.phoneNumber || "",
+          street: data.street || "",
+          houseNumber: data.houseNumber || "",
+          description: data.description || "",
+          isDefault: data.isDefault || false,
+          fullAddress: data.fullAddress || "",
         });
+
+        if (data.city) {
+          const province = provinces.find(p => p.name === data.city);
+          if (province) {
+            setSelectedProvince(province.code.toString());
+            const districtsRes = await getDistricts(province.code);
+            setDistricts(districtsRes);
+            if (data.district) {
+              const district = districtsRes.find(d => d.name === data.district);
+              if (district) {
+                setSelectedDistrict(district.code.toString());
+                const wardsRes = await getWards(district.code);
+                setWards(wardsRes);
+                if (data.ward) {
+                  const ward = wardsRes.find(w => w.name === data.ward);
+                  if (ward) {
+                    setSelectedWard(ward.code.toString());
+                  }
+                }
+              }
+            }
+          }
+        }
       } catch (error) {
         console.error("Error fetching address details:", error);
+        toast.error("Lỗi khi lấy thông tin địa chỉ");
       }
     };
-    fetchAddressDetail();
-  }, [editAddress.id]);
+    if (editAddress.id) {
+      fetchAddressDetail();
+    }
+  }, [editAddress.id, provinces]); 
 
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -59,9 +84,15 @@ const UpdateAddress = ({ editAddress, setEditAddress }) => {
         try {
           const response = await getDistricts(selectedProvince);
           setDistricts(response);
+          setSelectedDistrict("");
+          setSelectedWard("");
         } catch (error) {
           console.error("Lỗi khi lấy danh sách quận huyện:", error);
         }
+      } else {
+        setDistricts([]);
+        setSelectedDistrict("");
+        setSelectedWard("");
       }
     };
     fetchDistricts();
@@ -73,9 +104,13 @@ const UpdateAddress = ({ editAddress, setEditAddress }) => {
         try {
           const response = await getWards(selectedDistrict);
           setWards(response);
+          setSelectedWard("");
         } catch (error) {
           console.error("Lỗi khi lấy danh sách phường xã:", error);
         }
+      } else {
+        setWards([]);
+        setSelectedWard("");
       }
     };
     fetchWards();
@@ -85,34 +120,53 @@ const UpdateAddress = ({ editAddress, setEditAddress }) => {
     setSelectedProvince("");
     setSelectedDistrict("");
     setSelectedWard("");
-    setIsEditing(false);
+    setAddressDetail({
+      phoneNumber: "",
+      street: "",
+      houseNumber: "",
+      description: "",
+      isDefault: false,
+      fullAddress: "",
+    });
     setEditAddress({ id: null, isShowUpdateAddress: false });
+  };
+
+  const generateFullAddress = () => {
+    const houseNum = addressDetail.houseNumber ? `${addressDetail.houseNumber}, ` : "";
+    const streetAddr = addressDetail.street ? `${addressDetail.street}, ` : "";
+    const wardName = wards.find((ward) => ward.code.toString() === selectedWard)?.name || "";
+    const districtName = districts.find((district) => district.code.toString() === selectedDistrict)?.name || "";
+    const cityName = provinces.find((province) => province.code.toString() === selectedProvince)?.name || "";
+    return `${houseNum}${streetAddr}${wardName}, ${districtName}, ${cityName}`.replace(/, $/, "").trim();
   };
 
   const handleSaveAddress = async () => {
     if (
       !selectedProvince ||
-      !selectedDistrict ||
       !selectedWard ||
-      !newAddress.description ||
-      !newAddress.phoneNumber
+      !addressDetail.phoneNumber ||
+      !addressDetail.street.trim()
     ) {
-      alert("Vui lòng điền đầy đủ thông tin");
+      toast.error("Vui lòng điền đầy đủ thông tin địa chỉ bắt buộc (số điện thoại, tỉnh/thành phố, phường/xã, đường).");
       return;
     }
 
+    const selectedCity = provinces.find((province) => province.code.toString() === selectedProvince)?.name || "";
+    const selectedDistrictName = districts.find((district) => district.code.toString() === selectedDistrict)?.name || "";
+    const selectedWardName = wards.find((ward) => ward.code.toString() === selectedWard)?.name || "";
+    const fullAddr = generateFullAddress();
+
     const updatedAddress = {
-      ...newAddress,
-      city:
-        provinces.find(
-          (province) => province.code.toString() === selectedProvince
-        )?.name || "",
-      state:
-        districts.find(
-          (district) => district.code.toString() === selectedDistrict
-        )?.name || "",
-      street:
-        wards.find((ward) => ward.code.toString() === selectedWard)?.name || "",
+      id: editAddress.id,
+      phoneNumber: addressDetail.phoneNumber,
+      street: addressDetail.street,
+      houseNumber: addressDetail.houseNumber,
+      ward: selectedWardName,
+      district: selectedDistrictName,
+      city: selectedCity,
+      description: addressDetail.description,
+      isDefault: addressDetail.isDefault,
+      fullAddress: fullAddr,
     };
 
     try {
@@ -121,16 +175,21 @@ const UpdateAddress = ({ editAddress, setEditAddress }) => {
       setEditAddress({ id: null, isShowUpdateAddress: false });
     } catch (error) {
       console.error("Error updating address:", error);
+      toast.error("Cập nhật địa chỉ thất bại");
     }
   };
+
   return (
-    <div className="w-[700px] h-[500px] bg-white rounded-lg shadow-md p-8">
+    <div className="w-[700px] h-[672px] bg-white rounded-lg shadow-md p-8">  {/* Giữ height giống Add */}
       <div className="flex justify-between items-center mb-4">
         <div></div>
         <h1 className="text-[20px] font-bold mb-4 text-[#ff6347]">
           Cập nhật địa chỉ nhận hàng
         </h1>
-        <IoClose className="text-[20px]" />
+        <IoClose
+          className="text-[20px]"
+          onClick={() => setEditAddress({ id: null, isShowUpdateAddress: false })}
+        />
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex gap-2">
@@ -138,110 +197,132 @@ const UpdateAddress = ({ editAddress, setEditAddress }) => {
             Số điện thoại <span className="text-red-500">*</span>
           </p>
           <input
-            disabled={!isEditing}
-            value={newAddress.phoneNumber}
-            className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-            type="number"
             onChange={(e) =>
-              setNewAddress({
-                ...newAddress,
+              setAddressDetail({
+                ...addressDetail,
                 phoneNumber: e.target.value,
               })
             }
+            value={addressDetail.phoneNumber}
+            className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
+            type="tel"
           />
         </div>
         <div className="flex gap-2">
           <p className="w-[170px] text-[16px] text-amber-900">
             Tỉnh/ Thành phố <span className="text-red-500">*</span>
           </p>
-          {isEditing ? (
-            <select
-              onChange={(e) => setSelectedProvince(e.target.value)}
-              className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-            >
-              <option value="">Chọn tỉnh/ thành phố</option>
-              {provinces.map((province) => (
-                <option key={province.code} value={province.code}>
-                  {province.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              disabled
-              value={addressDetail.city}
-              className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-              type="text"
-            />
-          )}
+          <select
+            onChange={(e) => setSelectedProvince(e.target.value)}
+            value={selectedProvince}
+            className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
+          >
+            <option value="">Chọn tỉnh/ thành phố</option>
+            {provinces.map((province) => (
+              <option key={province.code} value={province.code}>
+                {province.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-2">
           <p className="w-[170px] text-[16px] text-amber-900">
-            Quận/ Huyện <span className="text-red-500">*</span>
+            Quận/ Huyện
           </p>
-          {isEditing ? (
-            <select
-              className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-            >
-              <option value="">Chọn quận/ huyện</option>
-              {districts.map((district) => (
-                <option key={district.code} value={district.code}>
-                  {district.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              disabled
-              value={addressDetail.state}
-              className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-              type="text"
-            />
-          )}
+          <select
+            className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
+            onChange={(e) => setSelectedDistrict(e.target.value)}
+            value={selectedDistrict}
+          >
+            <option value="">Chọn quận/ huyện</option>
+            {districts.map((district) => (
+              <option key={district.code} value={district.code}>
+                {district.name}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex gap-2">
           <p className="w-[170px] text-[16px] text-amber-900">
             Phường/ Xã <span className="text-red-500">*</span>
           </p>
-          {isEditing ? (
-            <select
-              className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-              onChange={(e) => setSelectedWard(e.target.value)}
-            >
-              <option value="">Chọn phường/ xã</option>
-              {wards.map((ward) => (
-                <option key={ward.code} value={ward.code}>
-                  {ward.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              disabled
-              value={addressDetail.country}
-              className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-              type="text"
-            />
-          )}
+          <select
+            className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
+            onChange={(e) => setSelectedWard(e.target.value)}
+            value={selectedWard}
+          >
+            <option value="">Chọn phường/ xã</option>
+            {wards.map((ward) => (
+              <option key={ward.code} value={ward.code}>
+                {ward.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-2">
+          <p className="w-[170px] text-[16px] text-amber-900">
+            Số nhà
+          </p>
+          <input
+            onChange={(e) =>
+              setAddressDetail({
+                ...addressDetail,
+                houseNumber: e.target.value,
+              })
+            }
+            value={addressDetail.houseNumber}
+            className="w-full px-2 h-[35px] border border-amber-900 outline-0 focus:outline-amber-100 rounded"
+            placeholder="Nhập số nhà (ví dụ: 123/45)"
+            type="text"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <p className="w-[170px] text-[16px] text-amber-900">
-            Địa chỉ chi tiết <span className="text-red-500">*</span>
+            Đường <span className="text-red-500">*</span>
           </p>
           <textarea
-            className="w-full h-[100px] px-2 border border-amber-900 outline-0 focus:outline-amber-100 rounded"
-            placeholder="Nhập địa chỉ chi tiết"
-            rows="4"
-            value={newAddress.description}
-            disabled={!isEditing}
+            className="w-full h-[60px] px-2 border border-amber-900 outline-0 focus:outline-amber-100 rounded"
+            placeholder="Nhập tên đường"
+            value={addressDetail.street}
             onChange={(e) =>
-              setNewAddress({
-                ...newAddress,
+              setAddressDetail({
+                ...addressDetail,
+                street: e.target.value,
+              })
+            }
+          ></textarea>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className="w-[170px] text-[16px] text-amber-900">
+            Ghi chú
+          </p>
+          <textarea
+            className="w-full h-[60px] px-2 border border-amber-900 outline-0 focus:outline-amber-100 rounded"
+            placeholder="Nhập ghi chú thêm (tùy chọn)"
+            value={addressDetail.description}
+            onChange={(e) =>
+              setAddressDetail({
+                ...addressDetail,
                 description: e.target.value,
               })
             }
           ></textarea>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="isDefault"
+            checked={addressDetail.isDefault}
+            onChange={(e) =>
+              setAddressDetail({
+                ...addressDetail,
+                isDefault: e.target.checked,
+              })
+            }
+          />
+          <label htmlFor="isDefault" className="text-[16px] text-amber-900">
+            Địa chỉ mặc định
+          </label>
         </div>
         <div className="flex gap-2 justify-end">
           <button
@@ -250,21 +331,12 @@ const UpdateAddress = ({ editAddress, setEditAddress }) => {
           >
             Hủy
           </button>
-          {isEditing ? (
-            <button
-              className="py-2 px-6 bg-[#ff6347] text-white hover:bg-[#ff4500] rounded cursor-pointer"
-              onClick={handleSaveAddress}
-            >
-              Lưu
-            </button>
-          ) : (
-            <button
-              className="py-2 px-6 bg-[#ff6347] text-white hover:bg-[#ff4500] rounded cursor-pointer"
-              onClick={() => setIsEditing(true)}
-            >
-              Chỉnh sửa
-            </button>
-          )}
+          <button
+            className="py-2 px-4 border-[#2349f6] text-[#2349f6] hover:bg-[#2349f6] hover:text-white border rounded cursor-pointer"
+            onClick={handleSaveAddress}
+          >
+            Lưu địa chỉ
+          </button>
         </div>
       </div>
     </div>

@@ -16,16 +16,16 @@ const Accessory = () => {
         sortDirection: "asc",
         page: 0,
         size: 10,
-        category: "",
+        categoryName: "",
         status: "true",
       };
 
       if (menu === "male") {
-        data.category = "Quần jeans";
+        data.categoryName = "Men's Footwear";
       } else if (menu === "female") {
-        data.category = "Váy";
+        data.categoryName = "SUNSHOPPING Bags, Wallets & Belts";
       } else if (menu === "sock") {
-        data.category = "Phụ kiện thời trang";
+        data.categoryName = "Clothing Accessories";
       }
 
       try {

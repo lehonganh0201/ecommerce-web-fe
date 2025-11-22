@@ -24,7 +24,7 @@ const Male = () => {
           sortDirection: "asc",
           page: 0,
           size: 10,
-          category: "Áo sơ mi",
+          category: "Men's Footwear",
           status: "true",
         };
 
@@ -139,7 +139,7 @@ const Male = () => {
               </button>
             </div>
             <div className="male_product__button">
-              <button onClick={() => navigate("/productsByCategory/Áo sơ mi")}>
+              <button onClick={() => navigate("/productsByCategory/3876")}>
                 XEM TẤT CẢ <FaArrowRight />
               </button>
             </div>

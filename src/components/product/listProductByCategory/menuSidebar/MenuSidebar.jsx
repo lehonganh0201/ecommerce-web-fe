@@ -1,12 +1,14 @@
 /* eslint-disable */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 
 import "./MenuSidebar.scss";
-import { categorys } from "@/utils/const/Constant";
+import { getCategories } from "@/apis/category";
+import { sortBy } from "lodash";
 const MenuSidebar = ({ setPrice }) => {
   const [opens, setOpens] = useState([]);
   const [isOpenPrice, setIsOpenPrice] = useState(true);
+  const [category, setCategory] = useState([]);
 
   const handleClick = (value, isOpen) => {
     if (isOpen) {
@@ -16,7 +18,22 @@ const MenuSidebar = ({ setPrice }) => {
     }
   };
 
-  const category = categorys;
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories({ 
+          sortedBy: "createdAt"
+        });
+        setCategory(data.data || data);
+      } catch (error) {
+        console.error("Lỗi fetch categories:", error);
+        setCategory([]);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  console.log("category", category);
   return (
     <div className="menuSidebar">
       <div className="menuSidebar__category">
@@ -37,24 +54,6 @@ const MenuSidebar = ({ setPrice }) => {
                 />
               )}
             </div>
-            {opens.includes(item.id) && (
-              <div className="menuSidebar__category-item-child">
-                {item.children.map((child) => (
-                  <p
-                    key={child.id}
-                    onClick={() => {
-                      setPrice({
-                        categoryName: child.name,
-                        minPrice: 0,
-                        maxPrice: 0,
-                      });
-                    }}
-                  >
-                    {child.name}
-                  </p>
-                ))}
-              </div>
-            )}
           </div>
         ))}
       </div>

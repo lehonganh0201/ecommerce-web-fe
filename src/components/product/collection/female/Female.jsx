@@ -23,7 +23,7 @@ const Female = () => {
           sortDirection: "asc",
           page: 0,
           size: 10,
-          category: "Váy",
+          categoryName: "Sleepwear",
           status: "true",
         };
 
@@ -115,7 +115,7 @@ const Female = () => {
         </div>
       </div>
       <div data-aos="fade-up" className="female__list">
-        <Line title="BỘ SƯU TẬP NỮ" />
+        <Line title="Đồ ngủ" />
         <div data-aos="fade-up" className="female_container">
           <div className="female_product">
             <div className="female_swiper">
@@ -156,7 +156,7 @@ const Female = () => {
               </button>
             </div>
             <div className="female_product__button">
-              <button onClick={() => navigate("/productsByCategory/Váy")}>
+              <button onClick={() => navigate("/productsByCategory/2973")}>
                 XEM TẤT CẢ <FaArrowRight />
               </button>
             </div>

@@ -15,7 +15,7 @@ const Order = () => {
     id: null,
     isShowUpdateAddress: false,
   });
-  const [deleteAddress, setDeleteAddress] = useState({
+  const [deleteAddressData, setDeleteAddressData] = useState({  // Rename state
     id: null,
     isShowDeleteAddress: false,
   });
@@ -27,6 +27,14 @@ const Order = () => {
     items: [],
   });
 
+  // Callback để refresh addresses sau khi xóa (gọi getAddresses ở LeftOrder nếu cần)
+  const handleDeleteSuccess = () => {
+    // Ví dụ: Nếu LeftOrder có refetch function, gọi nó ở đây
+    // Hoặc emit event/props drill down để refresh
+    console.log("Refresh addresses list after delete");
+    // Nếu cần: window.dispatchEvent(new CustomEvent('refreshAddresses'));
+  };
+
   return (
     <>
       <Layout>
@@ -35,9 +43,9 @@ const Order = () => {
             setIsShowAddAddress={setIsShowAddAddress}
             isShowAddAddress={isShowAddAddress}
             setEditAddress={setEditAddress}
-            setDeleteAddress={setDeleteAddress}
+            setDeleteAddressData={setDeleteAddressData}  // Rename setter
             isShowEditAddress={editAddress.isShowUpdateAddress}
-            isShowDeleteAddress={deleteAddress.isShowDeleteAddress}
+            isShowDeleteAddress={deleteAddressData.isShowDeleteAddress}  // Rename
             orderInformation={orderInformation}
             setOrderInformation={setOrderInformation}
           />
@@ -74,18 +82,19 @@ const Order = () => {
           </div>
         </div>
       )}
-      {deleteAddress.isShowDeleteAddress && (
+      {deleteAddressData.isShowDeleteAddress && (
         <div className="fixed inset-0 z-10 flex justify-center items-center">
           <div
             className="absolute inset-0 bg-black opacity-30"
             onClick={() =>
-              setDeleteAddress({ id: null, isShowDeleteAddress: false })
+              setDeleteAddressData({ id: null, isShowDeleteAddress: false })
             }
           ></div>
           <div className="relative z-20">
             <ConfirmDeleteAddress
-              deleteAddress={deleteAddress}
-              setDeleteAddress={setDeleteAddress}
+              deleteAddressData={deleteAddressData}
+              setDeleteAddressData={setDeleteAddressData}
+              onDeleteSuccess={handleDeleteSuccess}
             />
           </div>
         </div>

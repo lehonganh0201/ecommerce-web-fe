@@ -152,7 +152,6 @@ export const deleteAddress = async (id) => {
       url: `/addresses/${id}`,
       method: "DELETE",
     });
-    // Response có thể là thông báo thành công hoặc AddressResponse đã xóa (tùy backend), sử dụng để remove item khỏi list UI
     return response.data;
   } catch (error) {
     console.error("Lỗi khi xóa địa chỉ:", error);

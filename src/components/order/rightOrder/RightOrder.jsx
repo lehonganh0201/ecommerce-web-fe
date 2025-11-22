@@ -2,39 +2,122 @@
 import React, { useEffect, useState } from "react";
 
 import "./RightOrder.scss";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";  // Thêm dispatch nếu cần update store
 import { formatNumber } from "@/utils/function/validateTime";
 import { GrFormPrevious } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import { createdOrder } from "@/apis/order";
 import { toast } from "react-toastify";
+import { getProductsInCart } from "@/apis/cart";  // Nếu cần fallback
+import { getProductByVariantId } from "@/apis/variant";
+import { getProductById } from "@/apis/product";
 
 const RightOrder = ({ orderInformation, setOrderInformation }) => {
   console.log("RightOrder ~ orderInformation:", orderInformation);
-  const selectedProducts = useSelector((state) => state.order.orderList);
-  const totalPrice = useSelector((state) => state.order.totalPrice);
-  const [price, setPrice] = useState(totalPrice);
-  const [products, setProducts] = useState(selectedProducts);
+  const selectedProductsFromStore = useSelector((state) => state.order.orderList || []);
+  const totalPriceFromStore = useSelector((state) => state.order.totalPrice || 0);
+  const [products, setProducts] = useState([]);
+  const [price, setPrice] = useState(totalPriceFromStore);
+  const [isLogin, setIsLogin] = useState(false);
+  const [variantIds, setVariantIds] = useState([]);
+  const [productIdVariant, setProductIdVariant] = useState([]);
+  const [productDetails, setProductDetails] = useState([]);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // Kiểm tra trạng thái login
+    const token = localStorage.getItem("accessToken");
+    setIsLogin(!!token);
+
+    const fetchProductsForOrder = async () => {
+      try {
+        if (token && selectedProductsFromStore.length > 0) {
+          // Nếu đã đăng nhập và có orderList từ store, fetch chi tiết dựa trên variantIds
+          const variantIdsFromStore = selectedProductsFromStore.map(item => item.variantId);
+          setVariantIds(variantIdsFromStore);
+
+          // === Gọi API variant để lấy productId ===
+          const variantResList = await Promise.all(
+            variantIdsFromStore.map((id) => getProductByVariantId(id))
+          );
+          const productIds = variantResList.map((res) => res.data.productId);
+          setProductIdVariant(productIds);
+
+          // === Gọi API product để lấy thông tin sản phẩm ===
+          const productResList = await Promise.all(
+            productIds.map((id) => getProductById(id))
+          );
+          const productList = productResList.map((res) => res.data);
+          setProductDetails(productList);
+
+          // Merge chi tiết vào products (dựa trên orderList)
+          const mergedProducts = selectedProductsFromStore.map((storeItem, index) => ({
+            ...storeItem,
+            ...productList[index],  // Merge name, imageUrl, attributes, price từ productDetails
+            productName: productList[index]?.name || storeItem.productName,
+            imageUrl: productList[index]?.imageUrl || storeItem.imageUrl,
+            attributes: productList[index]?.attributes || storeItem.attributes || [],
+            price: productList[index]?.price || storeItem.price,
+          }));
+          setProducts(mergedProducts);
+          setPrice(totalPriceFromStore);  // Hoặc recalculate từ merged
+
+          // Fallback nếu API fail, dùng store data trực tiếp
+        } else if (selectedProductsFromStore.length > 0) {
+          // Không login hoặc fallback: Dùng store data (giả sử store đã có full info)
+          setProducts(selectedProductsFromStore);
+          setPrice(totalPriceFromStore);
+        } else {
+          // Không có sản phẩm, redirect về cart
+          navigate("/cart");
+        }
+      } catch (error) {
+        console.log("Error fetching products for order:", error);
+        toast.error("Lỗi khi tải thông tin sản phẩm");
+
+        // Fallback: Dùng store data
+        setProducts(selectedProductsFromStore);
+        setPrice(totalPriceFromStore);
+      }
+    };
+
+    fetchProductsForOrder();
+  }, [selectedProductsFromStore, totalPriceFromStore]);  // Deps: Trigger khi store thay đổi
 
   const handleClickQuantity = (product, status) => {
     const updatedProducts = products.map((item) => {
       if (item.variantId === product.variantId) {
+        const newQuantity = status === "increase" ? item.quantity + 1 : Math.max(1, item.quantity - 1);  // Min 1
         return {
           ...item,
-          quantity:
-            status === "increase" ? item.quantity + 1 : item.quantity - 1,
+          quantity: newQuantity,
         };
       }
       return item;
     });
     setProducts(updatedProducts);
-    setPrice(
-      status === "increase" ? price + product.price : price - product.price
-    );
+
+    // Recalculate total
+    const newTotal = updatedProducts.reduce((total, item) => total + (item.price * item.quantity), 0);
+    setPrice(newTotal);
+
+    // Update store nếu cần (dispatch action update orderList)
+    // dispatch(updateOrderQuantity({ variantId: product.variantId, quantity: newQuantity }));
+
+    // Update orderInformation cho API
+    setOrderInformation((prev) => ({
+      ...prev,
+      orderItems: updatedProducts.map((p) => ({
+        variantId: p.variantId,
+        quantity: p.quantity,
+      })),
+    }));
   };
 
   useEffect(() => {
+    // Sync với store nếu có thay đổi từ ngoài
     setOrderInformation((prev) => ({
       ...prev,
       orderItems: products.map((product) => ({
@@ -42,57 +125,73 @@ const RightOrder = ({ orderInformation, setOrderInformation }) => {
         quantity: product.quantity,
       })),
     }));
-  }, [selectedProducts]);
+  }, [products]);
 
   const handleOrder = async () => {
     console.log("Updated order information:", orderInformation);
+    if (products.length === 0) {
+      toast.error("Không có sản phẩm nào để đặt hàng!");
+      return;
+    }
+    if (!orderInformation.addressId) {
+      toast.error("Vui lòng chọn địa chỉ nhận hàng!");
+      return;
+    }
+
     try {
       const response = await createdOrder(orderInformation);
-      // toast.success("Đặt hàng thành công!");
+      toast.success("Đặt hàng thành công!");
       if (response.data.payment.paymentUrl) {
         window.location.href = response.data.payment.paymentUrl;
+      } else {
+        navigate("/");
       }
     } catch (error) {
       console.log("Error creating order:", error);
+      toast.error("Đặt hàng thất bại!");
     }
   };
 
   return (
     <div className="rightOrder">
-      <h1>Đơn hàng ({selectedProducts.length} sản phẩm)</h1>
+      <h1>Đơn hàng ({products.length} sản phẩm)</h1>
       <div className="rightOrder__list">
-        {products.map((product, index) => (
-          <div key={index} className="rightOrder__list-item">
-            <img src={product.imageUrl} />
-            <div className="rightOrder__list-item-info">
-              <p>{product.productName}</p>
-              {product.attributes &&
-                product.attributes.map((attribute, index) => (
-                  <p className="rightOrder__list-item-info-type">
+        {products.length > 0 ? (
+          products.map((product, index) => (
+            <div key={`${product.variantId}-${index}`} className="rightOrder__list-item">
+              <img src={product.images[0].image || product.image} alt={product.productName || product.name} />
+              <div className="rightOrder__list-item-info">
+                <p>{product.productName || product.name}</p>
+                {product.attributes && product.attributes.length > 0 && product.attributes.map((attribute, attrIndex) => (
+                  <p key={attrIndex} className="rightOrder__list-item-info-type">
                     {attribute.type}: {attribute.value}
                   </p>
                 ))}
-              <div className="rightOrder__list-item-info-price">
-                <div className="rightOrder__list-item-info-price-quantity">
-                  <button
-                    className="rightOrder__list-item-info-price-quantity-button"
-                    onClick={() => handleClickQuantity(product, "decrease")}
-                  >
-                    -
-                  </button>
-                  <span>{product.quantity}</span>
-                  <button
-                    className="rightOrder__list-item-info-price-quantity-button"
-                    onClick={() => handleClickQuantity(product, "increase")}
-                  >
-                    +
-                  </button>
+                <div className="rightOrder__list-item-info-price">
+                  <div className="rightOrder__list-item-info-price-quantity">
+                    <button
+                      className="rightOrder__list-item-info-price-quantity-button"
+                      onClick={() => handleClickQuantity(product, "decrease")}
+                      disabled={product.quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span>{product.quantity}</span>
+                    <button
+                      className="rightOrder__list-item-info-price-quantity-button"
+                      onClick={() => handleClickQuantity(product, "increase")}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p>{formatNumber(product.price * product.quantity)} đ</p>
                 </div>
-                <p>{formatNumber(product.price * product.quantity)} đ</p>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>Không có sản phẩm nào trong đơn hàng.</p>
+        )}
       </div>
       <div className="rightOrder__total-container">
         <div className="rightOrder__total-container-item">
@@ -122,7 +221,7 @@ const RightOrder = ({ orderInformation, setOrderInformation }) => {
           </span>
           Quay lại giỏ hàng
         </p>
-        <button className="rightOrder__button-btn" onClick={handleOrder}>
+        <button className="rightOrder__button-btn" onClick={handleOrder} disabled={products.length === 0}>
           Đặt hàng
         </button>
       </div>

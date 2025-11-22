@@ -244,20 +244,3 @@ const Cart = () => {
 };
 
 export default Cart;
-
-// product
-// một mảng là product
-//  "items": [
-//       {
-//         "variantId": 21741,
-//         "quantity": 8,
-//         "price": 29700,
-//         "totalPrice": 237600
-//       },
-//       {
-//         "variantId": 26103,
-//         "quantity": 1,
-//         "price": 36000,
-//         "totalPrice": 36000
-//       }
-//     ]

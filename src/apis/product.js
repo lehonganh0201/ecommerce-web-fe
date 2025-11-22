@@ -52,7 +52,7 @@ export const getAllProducts = async (data) => {
       page,
       size,
       searchKeyword,
-      category,
+      categoryName,
       minPrice,
       maxPrice,
       status,
@@ -62,7 +62,7 @@ export const getAllProducts = async (data) => {
         sortDirection ? sortDirection : "asc"
       }&page=${page ? page : "0"}&size=${size ? size : "10"}${
         searchKeyword ? `&searchKeyword=${searchKeyword}` : ""
-      }${category ? `&category=${category}` : ""}${
+      }${categoryName ? `&categoryName=${categoryName}` : ""}${
         minPrice ? `&minPrice=${minPrice}` : ""
       }${maxPrice ? `&maxPrice=${maxPrice}` : ""}&status=${
         status ? status : "true"

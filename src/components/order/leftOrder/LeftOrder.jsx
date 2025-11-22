@@ -1,4 +1,4 @@
-/* eslint-disable*/
+/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { MdAddCircleOutline } from "react-icons/md";
 import cod from "@/assets/images/cod.png";
@@ -8,22 +8,21 @@ import momoIcon from "@/assets/images/momoIcon.png";
 import vnpayIcon from "@/assets/images/vnpayIcon.png";
 import { FaPencilAlt } from "react-icons/fa";
 import { ImBin } from "react-icons/im";
-
 import "./LeftOrder.scss";
 import { getAddresses } from "@/apis/user";
+
 const LeftOrder = ({
   setIsShowAddAddress,
   isShowAddAddress,
   setEditAddress,
-  setDeleteAddress,
+  setDeleteAddressData,  // Rename prop để match parent
   isShowEditAddress,
-  isShowDeleteAddress,
+  isShowDeleteAddress,  // Giữ nguyên (state.isShowDeleteAddress)
   orderInformation,
   setOrderInformation,
 }) => {
   const [addresses, setAddresses] = useState([]);
   const [addressOrder, setAddressOrder] = useState([]);
-
   const fullName = localStorage.getItem("fullName");
 
   useEffect(() => {
@@ -41,7 +40,7 @@ const LeftOrder = ({
       }
     };
     fetchAddresses();
-  }, [isShowAddAddress, isShowEditAddress, isShowDeleteAddress]);
+  }, [isShowAddAddress, isShowEditAddress, isShowDeleteAddress]);  // Refetch khi modal đóng (sau xóa/update)
 
   const handleAddressSelection = (address) => {
     setAddressOrder(address);
@@ -104,7 +103,7 @@ const LeftOrder = ({
                   />
                   <ImBin
                     onClick={(e) =>
-                      setDeleteAddress({
+                      setDeleteAddressData({  // Fix: Dùng setter mới
                         id: address.id,
                         isShowDeleteAddress: true,
                       })
@@ -206,4 +205,4 @@ const LeftOrder = ({
   );
 };
 
-export default LeftOrder; 
+export default LeftOrder;

@@ -1,21 +1,32 @@
-/* eslint-disable*/
+/* eslint-disable */
 import { deleteAddress } from "@/apis/user";
-import React from "react";
+import React, { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 
-const ConfirmDeleteAddress = ({ deleteAddress, setDeleteAddress }) => {
+const ConfirmDeleteAddress = ({ deleteAddressData, setDeleteAddressData, onDeleteSuccess }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleClose = () => {
-    setDeleteAddress({ id: null, isShowDeleteAddress: false });
+    setDeleteAddressData({ id: null, isShowDeleteAddress: false });
   };
 
   const handleAgree = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
     try {
-      const response = await deleteAddress(deleteAddress.id);
+      const response = await deleteAddress(deleteAddressData.id);
       toast.success("Xóa địa chỉ thành công");
-      setDeleteAddress({ id: null, isShowDeleteAddress: false });
+      setDeleteAddressData({ id: null, isShowDeleteAddress: false });
+      if (onDeleteSuccess) {
+        onDeleteSuccess(); 
+      }
     } catch (error) {
-      console.log("Error deleting address:", error);
+      console.error("Error deleting address:", error);
+      toast.error("Xóa địa chỉ thất bại: " + (error.message || "Lỗi không xác định"));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -31,15 +42,17 @@ const ConfirmDeleteAddress = ({ deleteAddress, setDeleteAddress }) => {
       <div className="w-full flex justify-center items-center gap-4">
         <button
           onClick={handleClose}
-          className="px-[20px] py-[5px] border border-amber-700 text-amber-600 bg-white rounded hover:bg-amber-700 hover:text-white cursor-pointer"
+          disabled={isLoading}
+          className="px-[20px] py-[5px] border border-amber-700 text-amber-600 bg-white rounded hover:bg-amber-700 hover:text-white cursor-pointer disabled:opacity-50"
         >
           Hủy
         </button>
         <button
           onClick={handleAgree}
-          className="px-[20px] py-[5px] border border-b-blue-600 text-blue-600 bg-white rounded hover:bg-blue-600 hover:text-white cursor-pointer"
+          disabled={isLoading}
+          className="px-[20px] py-[5px] border border-b-blue-600 text-blue-600 bg-white rounded hover:bg-blue-600 hover:text-white cursor-pointer disabled:opacity-50"
         >
-          Đồng ý
+          {isLoading ? "Đang xóa..." : "Đồng ý"}
         </button>
       </div>
     </div>
