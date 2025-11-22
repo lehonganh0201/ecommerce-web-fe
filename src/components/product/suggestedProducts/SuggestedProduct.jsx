@@ -29,10 +29,15 @@ const SuggestedProduct = () => {
         data.sortedBy = "createdAt";
         data.sortDirection = "desc";
       }
+
+      if (menu === "top") {
+        data.sortedBy = "totalSold";
+        data.sortDirection = "desc";
+      }
       
       try {
         const response = await getAllProducts(data);
-        setListProduct(response.data.data);
+        setListProduct(response.data);
       } catch (error) {
         console.log(error);
       }
