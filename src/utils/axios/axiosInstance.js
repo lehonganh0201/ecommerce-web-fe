@@ -59,7 +59,6 @@ axiosPrivate.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -73,41 +72,47 @@ axiosPrivate.interceptors.response.use(
             return Promise.reject(err);
           });
       }
-
       originalRequest._retry = true;
       isRefreshing = true;
-
       try {
         const response = await refreshToken();
-        const { accessToken } = response.data;
-        
+        const { accessToken } = response.data;  // Extract cả hai nếu BE trả
+
+        // FIX: Lưu token mới vào localStorage
+        localStorage.setItem("accessToken", accessToken);
+
+        console.log("New accessToken saved to localStorage:", accessToken.substring(0, 20) + "...");  // DEBUG: Log partial token
+
+        // Set header cho requests sau
         axiosPrivate.defaults.headers.common["Authorization"] = "Bearer " + accessToken;
 
+        // Process queue với token mới
         processQueue(null, accessToken);
 
+        // Retry original request
         return axiosPrivate(originalRequest);
       } catch (error) {
-        processQueue(error, null);
+        // FAIL: Clear storage và redirect (uncomment để dùng)
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("role");
         localStorage.removeItem("fullName");
-        // window.location.href = "/auth";
+        window.location.href = "/auth";
+        processQueue(error, null);
         return Promise.reject(error);
       } finally {
         isRefreshing = false;
       }
     }
-
     if (error.response.status === 401) {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("role");
-      localStorage.removeItem("fullName");
+      // FAIL: Clear và redirect (uncomment nếu muốn strict)
+      // localStorage.removeItem("accessToken");
+      // localStorage.removeItem("refreshToken");
+      // localStorage.removeItem("role");
+      // localStorage.removeItem("fullName");
       // window.location.href = "/auth";
       return Promise.reject(error);
     }
-
     const errorResponse = {
       status: get(error, "response.status", null),
       message: get(error, "response.data.message", null),
@@ -116,4 +121,5 @@ axiosPrivate.interceptors.response.use(
     return Promise.reject(errorResponse);
   }
 );
+
 export { axiosPublic, axiosPrivate };

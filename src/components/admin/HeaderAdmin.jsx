@@ -9,9 +9,9 @@ const HeaderAdmin = ({ title }) => {
     try {
       await logoutApi();
 
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("role");
+      // localStorage.removeItem("accessToken");
+      // localStorage.removeItem("refreshToken");
+      // localStorage.removeItem("role");
 
       toast.success("Đăng xuất thành công");
       navigate("/auth");
