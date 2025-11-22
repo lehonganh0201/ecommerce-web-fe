@@ -235,7 +235,7 @@ const RightSession = ({ product }) => {
         </span> */}
       </div>
       <div className="right-session__type">
-        <p>Phân loại</p>
+        {/* <p>Phân loại</p> */}
         <div className="right-session__type__buttons">
           {product?.variants?.map(
             (type, index) =>

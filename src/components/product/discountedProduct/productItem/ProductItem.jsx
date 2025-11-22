@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { addToCart } from "@/apis/cart";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuantityOfCart } from "@/store/orderSlice";
+import { color } from "framer-motion";
 
 const ProductItem = ({ product }) => {
   const [indexImage, setIndexImage] = useState(0);
@@ -48,73 +49,74 @@ const ProductItem = ({ product }) => {
   };
 
   const handleClickAddToCart = async (e) => {
-  e.stopPropagation();
+    e.stopPropagation();
 
-  const accessToken = localStorage.getItem("accessToken");
-  const quantityToAdd = 1; 
-  const selectedVariant =
-    product.variants?.[0] || product;
+    const accessToken = localStorage.getItem("accessToken");
+    const quantityToAdd = 1;
+    const selectedVariant = product.variants?.[0] || product;
 
-  if (!selectedVariant) {
-    toast.error("Không tìm thấy biến thể sản phẩm");
-    return;
-  }
+    if (!selectedVariant) {
+      toast.error("Không tìm thấy biến thể sản phẩm");
+      return;
+    }
 
-  try {
-    if (accessToken) {
-      const data = {
-        variantId: selectedVariant.id || selectedVariant._id,
-        quantity: quantityToAdd,
-      };
+    try {
+      if (accessToken) {
+        const data = {
+          variantId: selectedVariant.id || selectedVariant._id,
+          quantity: quantityToAdd,
+        };
 
-      await addToCart(data);
-      dispatch(setQuantityOfCart(quantityOfCart + quantityToAdd));
-      toast.success("Thêm sản phẩm vào giỏ hàng thành công");
-    } else {
-      const productCart = {
-        id: product.id,
-        productName: product.name,
-        imageUrl:
-          selectedVariant.imageUrl ||
-          selectedVariant.images?.[0]?.image ||
-          product.images?.[0]?.image,
-        variantId: selectedVariant.id || selectedVariant._id,
-        quantity: quantityToAdd,
-        price: selectedVariant.price || product.basePrice,
-        stock: selectedVariant.stock || selectedVariant.stockQuantity,
-        addedAt: new Date().toISOString(),
-      };
-
-      let localCart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existingIndex = localCart.findIndex(
-        (item) => item.variantId === productCart.variantId
-      );
-
-      if (existingIndex > -1) {
-        localCart[existingIndex].quantity += productCart.quantity;
+        await addToCart(data);
+        dispatch(setQuantityOfCart(quantityOfCart + quantityToAdd));
+        toast.success("Thêm sản phẩm vào giỏ hàng thành công");
       } else {
-        localCart.push(productCart);
+        const productCart = {
+          id: product.id,
+          productName: product.name,
+          imageUrl:
+            selectedVariant.imageUrl ||
+            selectedVariant.images?.[0]?.image ||
+            product.images?.[0]?.image,
+          variantId: selectedVariant.id || selectedVariant._id,
+          quantity: quantityToAdd,
+          price: selectedVariant.price || product.basePrice,
+          stock: selectedVariant.stock || selectedVariant.stockQuantity,
+          addedAt: new Date().toISOString(),
+        };
+
+        let localCart = JSON.parse(localStorage.getItem("cart")) || [];
+        const existingIndex = localCart.findIndex(
+          (item) => item.variantId === productCart.variantId
+        );
+
+        if (existingIndex > -1) {
+          localCart[existingIndex].quantity += productCart.quantity;
+        } else {
+          localCart.push(productCart);
+        }
+
+        localStorage.setItem("cart", JSON.stringify(localCart));
+        const totalQuantity = localCart.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        dispatch(setQuantityOfCart(totalQuantity));
+
+        toast.success("Thêm sản phẩm vào giỏ hàng thành công");
       }
-
-      localStorage.setItem("cart", JSON.stringify(localCart));
-      const totalQuantity = localCart.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-      );
-      dispatch(setQuantityOfCart(totalQuantity));
-
-      toast.success("Thêm sản phẩm vào giỏ hàng thành công");
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        toast.error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+        navigate("/auth");
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng");
+      }
     }
-  } catch (error) {
-    console.error("Error adding product to cart:", error);
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      toast.error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
-      navigate("/auth");
-    } else {
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng");
-    }
-  }
-};
+  };
+
+  console.log("Test detial product 123131 321 2131  : ", product);
 
   return (
     <div
@@ -126,15 +128,9 @@ const ProductItem = ({ product }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {isLiked(product) ? (
-          <FaHeart
-            color="red" 
-            onClick={() => handleLike(product)}
-          />
+          <FaHeart color="red" onClick={() => handleLike(product)} />
         ) : (
-          <FaRegHeart
-            color="#555" 
-            onClick={() => handleLike(product)}
-          />
+          <FaRegHeart color="#555" onClick={() => handleLike(product)} />
         )}
       </div>
 
@@ -168,10 +164,27 @@ const ProductItem = ({ product }) => {
       <p className="product-item_name">{product.name}</p>
 
       <div className="product-item_price">
+        <div className="product-meta">
+          <span>Đã bán: {product.totalSold}</span>
+          <span> - </span>
+          <span>Tồn kho: {product.stock}</span>
+        </div>
         <p className="product-item_price-fake">
           {formatNumber(product.basePrice)} đ
         </p>
       </div>
+
+      {/* <div className="product-info">
+        <p className="product-title">{product.name}</p>
+
+        <div className="product-meta">
+          <span>Đã bán: {product.totalSold}</span>
+          <span> - </span>
+          <span>Tồn kho: {product.stock}</span>
+        </div>
+
+        <div className="product-price">{formatNumber(product.basePrice)} đ</div>
+      </div> */}
     </div>
   );
 };
