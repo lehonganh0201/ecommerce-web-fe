@@ -37,7 +37,8 @@ const Cart = () => {
 
     const fetchListProductsInCart = async () => {
       try {
-        setSelectedProducts(selectedProductsFromStore);
+        // Initial selectedProducts = [] để total = 0
+        setSelectedProducts([]);
 
         if (token) {
           // Nếu đã đăng nhập, lấy từ API
@@ -45,7 +46,6 @@ const Cart = () => {
           const variantIds = response.data.items.map((item) => item.variantId); //  lay list id variant
           setVariantIds(variantIds);
           setListProducts(response.data.items);
-          setTotalPrice(response.data.totalPrice);
 
           // === Gọi API variant để lấy productId ===
           const variantResList = await Promise.all(
@@ -61,10 +61,16 @@ const Cart = () => {
           );
           const productList = productResList.map((res) => res.data);
           setProductDetails(productList);
+
+          // Initial totalPrice = 0 (chưa select gì)
+          setTotalPrice(0);
         } else {
           // Nếu chưa đăng nhập, lấy từ localStorage
           const localCart = getLocalCart();
           setListProducts(localCart);
+          // Initial selected = [] để total = 0
+          setSelectedProducts([]);
+          setTotalPrice(0);
         }
       } catch (error) {
         console.log("Error fetching products in cart:", error);
@@ -72,17 +78,21 @@ const Cart = () => {
         // Fallback về localStorage nếu API fail
         const localCart = getLocalCart();
         setListProducts(localCart);
+        setSelectedProducts([]);
+        setTotalPrice(0);
       }
     };
 
     fetchListProductsInCart();
   }, []);
 
+  // Tính total chỉ khi selectedProducts thay đổi (tăng khi chọn CartItem)
   useEffect(() => {
     let total = 0;
     selectedProducts?.forEach((product) => {
-      total += product.price * product.quantity;
+      total += (product.price || 0) * (product.quantity || 0);  // Đảm bảo price/quantity tồn tại
     });
+    console.log("Calculated totalPrice:", total, "from selected:", selectedProducts.length);  // DEBUG
     setTotalPrice(total);
   }, [selectedProducts]);
 
@@ -103,7 +113,7 @@ const Cart = () => {
 
       // Cập nhật Redux state
       const totalQuantity = updatedCart.reduce(
-        (total, item) => total + item.quantity,
+        (total, item) => total + (item.quantity || 0),
         0
       );
       dispatch(setQuantityOfCart(totalQuantity));

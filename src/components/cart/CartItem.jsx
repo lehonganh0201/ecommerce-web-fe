@@ -100,6 +100,13 @@ const CartItem = ({
     );
   };
 
+  // Fix: Navigate đến search với query tên sản phẩm
+  const handleSearchSimilar = () => {
+    const productName = detail?.name || product.name || "sản phẩm";  // Fallback nếu không có name
+    const encodedQuery = encodeURIComponent(productName);  // Encode để URL safe
+    navigate(`/search?searchKeyword=${encodedQuery}`);
+  };
+
   return (
     <div className="card-item">
       <div className="card-item__left">
@@ -155,7 +162,7 @@ const CartItem = ({
             className="icon-cancel"
             onClick={() => handleClickDelete(product.variantId)}
           />
-          <div className="search" onClick={() => navigate("/")}>
+          <div className="search" onClick={handleSearchSimilar}>
             <p>Tìm kiếm sản phẩm tương tự</p>
             <FaCaretDown className="icon-down" />
           </div>

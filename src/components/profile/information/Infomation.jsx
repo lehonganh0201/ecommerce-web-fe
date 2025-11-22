@@ -1,19 +1,20 @@
-/* eslint-disable*/
+/* eslint-disable */
 import React, { useEffect, useState } from "react";
-
 import { MdOutlineAccountCircle } from "react-icons/md";
+import { toast } from "react-toastify";
 import "./Information.scss";
-import { getMe } from "@/apis/user";
+import { getMe, uploadAvatar } from "@/apis/user";
 
 const Infomation = () => {
   const [isEditting, setIsEditing] = useState(false);
   const [information, setInformation] = useState({
-    username: "abc",
-    firstName: "Nguyen",
-    email: "abc@gmail.com",
-    lastName: "Hang",
+    username: "",
+    firstName: "",
+    email: "",
+    lastName: "",
   });
-  const [avatar, setAvatar] = useState(null);
+  const [avatar, setAvatar] = useState(null); 
+  const [uploading, setUploading] = useState(false); 
 
   useEffect(() => {
     const fetchUserInformation = async () => {
@@ -21,27 +22,57 @@ const Infomation = () => {
         const response = await getMe();
         setInformation((prev) => ({
           ...prev,
-          username: response.data.username || "abc",
-          firstName: response.data.fullName.split(" ")[0] || "Nguyen",
+          username: response.data.username || "",
+          firstName: response.data.fullName.split(" ")[0] || "",
           lastName:
-            response.data.fullName.split(" ").slice(1).join(" ") || "Hang",
-          email: response.data.email || "abc@gmail.com",
+            response.data.fullName.split(" ").slice(1).join(" ") || "",
+          email: response.data.email || "",
         }));
+        if (response.data.avatar) {
+          setAvatar(response.data.avatar);
+        }
       } catch (error) {
         console.log("Error fetching user information:", error);
+        toast.error("Lỗi khi lấy thông tin người dùng");
       }
     };
     fetchUserInformation();
   }, []);
 
-  const handleChangeAvatar = (e) => {
+  const handleChangeAvatar = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 1024 * 1024) {
+        toast.error("File quá lớn! Dung lượng tối đa 1MB.");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        toast.error("Chỉ chấp nhận file ảnh (.jpg, .png, .jpeg).");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatar(reader.result);
       };
       reader.readAsDataURL(file);
+
+      setUploading(true);
+      try {
+        const response = await uploadAvatar(file);
+        toast.success("Upload avatar thành công!");
+        const updatedUser = await getMe();
+        if (updatedUser.data.avatar) {
+          setAvatar(updatedUser.data.avatar);
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast.error("Upload avatar thất bại!");
+        setAvatar(null);
+      } finally {
+        setUploading(false);
+        e.target.value = "";
+      }
     }
   };
 
@@ -102,7 +133,6 @@ const Infomation = () => {
               onChange={(e) => handleChangeInformation(e)}
             />
           </div>
-
           <div className="information__content__form__btn">
             {!isEditting ? (
               <button
@@ -135,8 +165,11 @@ const Infomation = () => {
         </div>
         <div className="information__content__avatar">
           <div className="information__content__avatar__img">
-            {/* <img /> */}
-            <MdOutlineAccountCircle />
+            {avatar ? (
+              <img src={avatar} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+            ) : (
+              <MdOutlineAccountCircle />
+            )}
           </div>
           <label htmlFor="file" className="information__content__avatar__label">
             <input
@@ -145,8 +178,9 @@ const Infomation = () => {
               accept="image/*"
               style={{ display: "none" }}
               onChange={(e) => handleChangeAvatar(e)}
+              disabled={uploading}
             />
-            <span>Chọn ảnh đại diện</span>
+            <span>{uploading ? "Đang upload..." : "Chọn ảnh đại diện"}</span>
           </label>
           <p>Dung lượng tối đa 1MB. Định dạng: .jpg, .png, .jpeg</p>
         </div>

@@ -15,6 +15,26 @@ export const getMe = async () => {
   }
 };
 
+export const uploadAvatar = async (file) => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file); 
+
+    const response = await request(axiosPrivate, {
+      url: "/users/upload",
+      method: "POST",
+      data: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi upload avatar:", error);
+    throw new Error("Upload avatar không thành công");
+  }
+};
+
 export const getProvinces = async () => {
   try {
     const response = await axios.get("https://provinces.open-api.vn/api/p/");

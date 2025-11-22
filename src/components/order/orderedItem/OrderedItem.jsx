@@ -1,13 +1,13 @@
 /* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { formatDate, formatNumber } from "@/utils/function/validateTime";
-import { getOrderStatusInfo } from "@/apis/order"; // Sửa import đúng (từ utils/orderStatus)
+import { getOrderStatusInfo } from "@/apis/order";
 import "./OrderedItem.scss";
 import { getProductByVariantId } from "@/apis/variant";
 
 const OrderedItem = ({ item }) => {
   const statusInfo = getOrderStatusInfo(item?.status);
-  const [products, setProducts] = useState({}); // { variantId: { productName, imageUrl } }
+  const [products, setProducts] = useState({}); 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
