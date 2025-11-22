@@ -180,6 +180,12 @@ const RightSession = ({ product }) => {
     },
   ];
 
+  const handleSearchSimilar = () => {
+    const productName = product.name || "sản phẩm";
+    const encodedQuery = encodeURIComponent(productName);
+    navigate(`/search?searchKeyword=${encodedQuery}`);
+  };
+
 
   return (
     <div className="right-session">
@@ -272,7 +278,9 @@ const RightSession = ({ product }) => {
               +
             </button>
           </div>
-          <p>Tìm kiếm sản phẩm tương tự</p>
+          <div className="search" onClick={handleSearchSimilar}>
+            <p>Tìm kiếm sản phẩm tương tự</p>
+          </div>
         </div>
       </div>
       <div className="right-session__button">
