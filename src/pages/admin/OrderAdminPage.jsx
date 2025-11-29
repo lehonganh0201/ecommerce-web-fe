@@ -11,6 +11,7 @@ import LayoutAdmin from "./LayoutAdmin";
 import HeaderAdmin from "@/components/admin/HeaderAdmin";
 import OrderList from "@/components/admin/orderAdmin/OrderList";
 import OrderViewModal from "@/components/admin/orderAdmin/OrderViewModal";
+import RouteMapModal from "@/components/admin/orderAdmin/RouteMapModal";
 
 const OrderAdminPage = () => {
   const [orders, setOrders] = useState([]);
@@ -27,6 +28,10 @@ const OrderAdminPage = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
+  const [showRouteModal, setShowRouteModal] = useState(false);
+  const [routeOrder, setRouteOrder] = useState(null);
+  const [routeOrigin, setRouteOrigin] = useState({ lat: null, lng: null });
+  const [routeVehicle, setRouteVehicle] = useState("car");
 
   const statusCounts = getOrderStatusCounts(orders);
 
@@ -113,6 +118,46 @@ const OrderAdminPage = () => {
     console.log('currentPage actually updated to:', currentPage);
   }, [currentPage]);
 
+  const handleNavigateToDelivery = async (order) => {
+    if (!navigator.geolocation) {
+      toast.error("Trình duyệt không hỗ trợ GPS!");
+      return;
+    }
+
+    toast.loading("Đang lấy vị trí hiện tại...", { id: "gps-loading" });
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        toast.dismiss("gps-loading");
+        toast.success("GPS lấy thành công! Đang gọi route...");
+        setRouteOrder(order);
+        setRouteOrigin({ lat, lng });
+        setShowRouteModal(true);
+      },
+      (err) => {
+        toast.dismiss("gps-loading");
+        let message = "Lỗi lấy GPS: ";
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            message += "User từ chối quyền truy cập vị trí";
+            break;
+          case err.POSITION_UNAVAILABLE:
+            message += "Vị trí không khả dụng (GPS tắt?)";
+            break;
+          case err.TIMEOUT:
+            message += "Timeout lấy vị trí";
+            break;
+          default:
+            message += err.message;
+        }
+        toast.error(message);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
   return (
     <LayoutAdmin>
       <div className="flex-1 overflow-auto relative z-10">
@@ -120,7 +165,7 @@ const OrderAdminPage = () => {
         <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
           <Motion.div
             initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 10, x: 0 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
             <OrderFilters
@@ -146,11 +191,24 @@ const OrderAdminPage = () => {
               onViewOrder={handleViewOrder}
               onStatusChange={getAllOrders}
               onSort={handleSort}
+              onNavigate={handleNavigateToDelivery}
             />
             {showModal && selectedOrder && (
               <OrderViewModal
                 order={selectedOrder}
                 onClose={() => setShowModal(false)}
+                token={token}
+              />
+            )}
+
+            {showRouteModal && routeOrder && routeOrigin.lat && (
+              <RouteMapModal
+                isOpen={showRouteModal}
+                onClose={() => setShowRouteModal(false)}
+                order={routeOrder}
+                originLat={routeOrigin.lat}
+                originLng={routeOrigin.lng}
+                vehicle={routeVehicle}
                 token={token}
               />
             )}

@@ -28,7 +28,6 @@ const Cart = () => {
   const dispatch = useDispatch();
   const [variantIds, setVariantIds] = useState([]);
   const [productIdVariant, setproductIdVariant] = useState([]); // lay gia tri productId từ variant bằng variantID
-  const [productDetails, setProductDetails] = useState([]);
 
   useEffect(() => {
     // Kiểm tra trạng thái login
@@ -45,7 +44,6 @@ const Cart = () => {
           const response = await getProductsInCart();
           const variantIds = response.data.items.map((item) => item.variantId); //  lay list id variant
           setVariantIds(variantIds);
-          setListProducts(response.data.items);
 
           // === Gọi API variant để lấy productId ===
           const variantResList = await Promise.all(
@@ -60,7 +58,13 @@ const Cart = () => {
             productIds.map((id) => getProductById(id))
           );
           const productList = productResList.map((res) => res.data);
-          setProductDetails(productList);
+
+          // Merge detail vào mỗi item để tránh mismatch index sau khi xóa/sửa
+          const enrichedItems = response.data.items.map((item, i) => ({
+            ...item,
+            detail: productList[i]
+          }));
+          setListProducts(enrichedItems);
 
           // Initial totalPrice = 0 (chưa select gì)
           setTotalPrice(0);
@@ -146,7 +150,6 @@ const Cart = () => {
   console.log("carrt ", listProducts);
   console.log("Variant IDs:", variantIds);
   console.log("productIdVariant", productIdVariant);
-  console.log("productDetails", productDetails);
 
   return (
     <div>
@@ -190,7 +193,7 @@ const Cart = () => {
                 {listProducts.length > 0 ? (
                   listProducts.map((product, index) => (
                     <CartItem
-                      key={`${product.variantId || product.id}-${index}`}
+                      key={product.variantId || product.id}
                       product={product}
                       index={index}
                       setListProducts={setListProducts}
@@ -199,7 +202,6 @@ const Cart = () => {
                       isLogin={isLogin}
                       updateLocalCart={updateLocalCart}
                       variantIds={variantIds}
-                      productDetails={productDetails}
                     />
                   ))
                 ) : (

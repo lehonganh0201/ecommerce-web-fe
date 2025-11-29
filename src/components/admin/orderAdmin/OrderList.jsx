@@ -14,6 +14,7 @@ const OrderList = ({
   hasPrevious,
   onStatusChange,
   onSort,
+  onNavigate,
 }) => {
   console.log('check',orders,
   currentPage,
@@ -74,6 +75,7 @@ const OrderList = ({
                 order={order}
                 onView={onViewOrder}
                 onStatusChange={onStatusChange}
+                onNavigate={onNavigate}
               />
             ))}
           </tbody>

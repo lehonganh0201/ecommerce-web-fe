@@ -13,45 +13,56 @@ const CartItem = ({
   setSelectedProducts,
   selectedProducts,
   variantIds,
-  productDetails,
   index,
+  isLogin,
+  updateLocalCart,
 }) => {
-  const detail = productDetails?.[index];
+  const detail = product.detail;
   console.log("product item cart", product);
   const navigate = useNavigate();
 
   const handleIncrease = (variantId) => {
     setListProducts((prev) => {
-      return prev.map((product) =>
-        product.variantId === variantId
-          ? { ...product, quantity: product.quantity + 1 }
-          : product
+      const newList = prev.map((p) =>
+        p.variantId === variantId
+          ? { ...p, quantity: p.quantity + 1 }
+          : p
       );
+      if (!isLogin) {
+        updateLocalCart(newList);
+      }
+      // TODO: Nếu đã login, gọi API update quantity cho variantId
+      return newList;
     });
 
     setSelectedProducts((prev) => {
-      return prev.map((product) =>
-        product.variantId === variantId
-          ? { ...product, quantity: product.quantity + 1 }
-          : product
+      return prev.map((p) =>
+        p.variantId === variantId
+          ? { ...p, quantity: p.quantity + 1 }
+          : p
       );
     });
   };
 
   const handleDecrease = (variantId) => {
     setListProducts((prev) => {
-      return prev.map((product) =>
-        product.variantId === variantId && product.quantity > 1
-          ? { ...product, quantity: product.quantity - 1 }
-          : product
+      const newList = prev.map((p) =>
+        p.variantId === variantId && p.quantity > 1
+          ? { ...p, quantity: p.quantity - 1 }
+          : p
       );
+      if (!isLogin) {
+        updateLocalCart(newList);
+      }
+      // TODO: Nếu đã login, gọi API update quantity cho variantId
+      return newList;
     });
 
     setSelectedProducts((prev) => {
-      return prev.map((product) =>
-        product.variantId === variantId && product.quantity > 1
-          ? { ...product, quantity: product.quantity - 1 }
-          : product
+      return prev.map((p) =>
+        p.variantId === variantId && p.quantity > 1
+          ? { ...p, quantity: p.quantity - 1 }
+          : p
       );
     });
   };
@@ -59,18 +70,23 @@ const CartItem = ({
   const handleQuantityChange = (e, variantId) => {
     const newQuantity = Math.max(1, parseInt(e.target.value, 10)); // Đảm bảo số lượng luôn >= 1
     setListProducts((prev) => {
-      return prev.map((product) =>
-        product.variantId === variantId
-          ? { ...product, quantity: newQuantity }
-          : product
+      const newList = prev.map((p) =>
+        p.variantId === variantId
+          ? { ...p, quantity: newQuantity }
+          : p
       );
+      if (!isLogin) {
+        updateLocalCart(newList);
+      }
+      // TODO: Nếu đã login, gọi API update quantity cho variantId
+      return newList;
     });
 
     setSelectedProducts((prev) => {
-      return prev.map((product) =>
-        product.variantId === variantId
-          ? { ...product, quantity: newQuantity }
-          : product
+      return prev.map((p) =>
+        p.variantId === variantId
+          ? { ...p, quantity: newQuantity }
+          : p
       );
     });
   };
@@ -79,10 +95,11 @@ const CartItem = ({
     setSelectedProducts((prev) => {
       const newProducts = [...prev];
       const index = newProducts.findIndex(
-        (product) => product.variantId === variantId
+        (p) => p.variantId === variantId
       );
       if (index === -1) {
-        newProducts.push(product);
+        // Clone product để tránh reference issue
+        newProducts.push({ ...product });
       } else {
         newProducts.splice(index, 1);
       }
@@ -91,12 +108,17 @@ const CartItem = ({
   };
 
   const handleClickDelete = (variantId) => {
-    setListProducts((prev) =>
-      prev.filter((product) => product.variantId !== variantId)
-    );
+    setListProducts((prev) => {
+      const newList = prev.filter((p) => p.variantId !== variantId);
+      if (!isLogin) {
+        updateLocalCart(newList);
+      }
+      // TODO: Nếu đã login, gọi API remove item từ cart (e.g., removeFromCart(variantId))
+      return newList;
+    });
 
     setSelectedProducts((prev) =>
-      prev.filter((product) => product.variantId !== variantId)
+      prev.filter((p) => p.variantId !== variantId)
     );
   };
 
@@ -120,11 +142,11 @@ const CartItem = ({
 
         {/* Ảnh sản phẩm */}
         <img
-          src={detail?.images?.[0]?.image || "/images/default-product.png"}
-          alt={detail?.name || "product"}
+          src={detail?.images?.[0]?.image || product.images?.[0] || "/images/default-product.png"}
+          alt={detail?.name || product.name || "product"}
         />
         <div className="card-item__left-info">
-          <h3>{detail?.name}</h3>
+          <h3>{detail?.name || product.name}</h3>
 
           {product.attributes &&
             product.attributes.map((attribute, index) => (

@@ -14,7 +14,7 @@ import BestSellerTable from "@/components/admin/dashboard/BestSellerTable";
 import PaymentMethodChart from "@/components/admin/dashboard/PaymentMethodChart";
 import RoleStatsChart from "@/components/admin/dashboard/RoleStatsChart";
 import ActiveRetentionChart from "@/components/admin/dashboard/ActiveRetentionChart";
-import TopAttributesChart from "@/components/admin/dashboard/TopAttributesChart";
+// import TopAttributesChart from "@/components/admin/dashboard/TopAttributesChart";
 import ProductImagesStatsChart from "@/components/admin/dashboard/ProductImagesStatsChart";
 import AverageCartStatsCard from "@/components/admin/dashboard/AverageCartStatsCard";
 import ConversionRateCard from "@/components/admin/dashboard/ConversionRateCard";
@@ -34,7 +34,7 @@ import {
     getRatingStats,
     getAverageCartStats,
     getProductImagesStats,
-    getTopAttributes,
+    // getTopAttributes,
 } from "@/apis/stats";
 
 const DashboardAdminPage = () => {
@@ -94,7 +94,7 @@ const DashboardAdminPage = () => {
                 getRatingStats(dateRange.fromDate, dateRange.toDate, "product"),
                 getAverageCartStats(dateRange.fromDate, dateRange.toDate, 5),
                 getProductImagesStats(dateRange.fromDate, dateRange.toDate, false),
-                getTopAttributes(dateRange.fromDate, dateRange.toDate, 5),
+                // getTopAttributes(dateRange.fromDate, dateRange.toDate, 5),
             ]);
 
             setStatsData({
@@ -111,7 +111,7 @@ const DashboardAdminPage = () => {
                 ratingStats: ratingStatsRes.data,
                 averageCartStats: averageCartRes.data,
                 productImagesStats: productImagesRes.data,
-                topAttributes: topAttributesRes.data,
+                // topAttributes: topAttributesRes.data,
             });
         } catch (err) {
             toast.error(`Lỗi khi tải dữ liệu dashboard: ${err.message}`);
@@ -200,9 +200,9 @@ const DashboardAdminPage = () => {
                         {/* SECTION 5: PRODUCT - 3 charts (3 col) */}
                         <section className="mb-8">
                             <h2 className="text-xl font-semibold text-gray-900 mb-4">Sản phẩm</h2>
-                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                 <ProductCategoryChart productsByCategory={statsData.productsByCategory} />
-                                <TopAttributesChart topAttributes={statsData.topAttributes} />
+                                {/* <TopAttributesChart topAttributes={statsData.topAttributes} /> */}
                                 <ProductImagesStatsChart productImagesStats={statsData.productImagesStats} />
                             </div>
                         </section>

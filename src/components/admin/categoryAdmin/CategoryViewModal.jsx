@@ -26,8 +26,8 @@ const CategoryViewModal = ({ category, onClose, onEdit }) => {
             <img
               className="h-24 w-24 border border-none rounded-xl"
               src={
-                category.imageUrl
-                  ? category.imageUrl
+                category.image
+                  ? category.image
                   : "https://picsum.photos/200/300?grayscale"
               }
               alt={category.name}

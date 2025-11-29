@@ -1,10 +1,11 @@
-import { Eye } from "lucide-react";
+import { Eye, MapPin } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { motion as Motion } from "framer-motion";
 import OrderStatusBadge from "./OrderStatusBadge";
 import { updateStatus } from "@/apis/order";
-const OrderListItem = ({ order, onView, onStatusChange }) => {
+
+const OrderListItem = ({ order, onView, onStatusChange, onNavigate }) => {
   const itemsCount = order.orderItems.length;
   const [status, setStatus] = useState(order.status);
 
@@ -44,7 +45,6 @@ const OrderListItem = ({ order, onView, onStatusChange }) => {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      // whileHover={{ scale: 1.02 }}
       className="hover:bg-gray-50"
     >
       <td className="px-4 py-4 whitespace-nowrap">
@@ -55,9 +55,7 @@ const OrderListItem = ({ order, onView, onStatusChange }) => {
         <div className="text-xs text-gray-500">
           {order.orderItems
             .slice(0, 2)
-            .map((item) => item?.name)
-            }
-          
+            .map((item) => item?.name)}
         </div>
       </td>
       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -74,13 +72,22 @@ const OrderListItem = ({ order, onView, onStatusChange }) => {
         />
       </td>
       <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-        <button
-          onClick={() => onView(order)}
-          className="cursor-pointer text-blue-600 hover:text-blue-900"
-          title="View Order Details"
-        >
-          <Eye className="h-4 w-4" />
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onView(order)}
+            className="cursor-pointer text-blue-600 hover:text-blue-900"
+            title="Xem chi tiết đơn hàng"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => onNavigate(order)}
+            className="cursor-pointer text-green-600 hover:text-green-900"
+            title="Chỉ đường đến địa chỉ giao hàng"
+          >
+            <MapPin className="h-4 w-4" />
+          </button>
+        </div>
       </td>
     </Motion.tr>
   );

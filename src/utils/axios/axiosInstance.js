@@ -97,7 +97,7 @@ axiosPrivate.interceptors.response.use(
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("role");
         localStorage.removeItem("fullName");
-        window.location.href = "/auth";
+        // window.location.href = "/auth";
         processQueue(error, null);
         return Promise.reject(error);
       } finally {
