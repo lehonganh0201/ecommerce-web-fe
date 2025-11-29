@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 
-import "./MenuSidebar.scss";
+import "./MenuSideBar.scss";
 import { getCategories } from "@/apis/category";
 import { sortBy } from "lodash";
 const MenuSidebar = ({ setPrice }) => {
