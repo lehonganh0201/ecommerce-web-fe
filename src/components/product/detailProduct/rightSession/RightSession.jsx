@@ -68,7 +68,7 @@ const RightSession = ({ product }) => {
       ) || variants[0];
 
     if (!selectedVariant) {
-      toast.error("Không tìm thấy biến thể sản phẩm");
+      selectedVariant = product.id
       return;
     }
 
