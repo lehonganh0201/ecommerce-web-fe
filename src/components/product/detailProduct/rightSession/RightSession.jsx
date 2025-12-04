@@ -67,11 +67,6 @@ const RightSession = ({ product }) => {
         (v) => v.id === infoSelect.variantId || v._id === infoSelect.variantId
       ) || variants[0];
 
-    if (!selectedVariant) {
-      selectedVariant = product.id
-      return;
-    }
-
     try {
       if (accessToken) {
         const data = {

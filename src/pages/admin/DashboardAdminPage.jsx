@@ -15,7 +15,7 @@ import PaymentMethodChart from "@/components/admin/dashboard/PaymentMethodChart"
 import RoleStatsChart from "@/components/admin/dashboard/RoleStatsChart";
 import ActiveRetentionChart from "@/components/admin/dashboard/ActiveRetentionChart";
 // import TopAttributesChart from "@/components/admin/dashboard/TopAttributesChart";
-import ProductImagesStatsChart from "@/components/admin/dashboard/ProductImagesStatsChart";
+// import ProductImagesStatsChart from "@/components/admin/dashboard/ProductImagesStatsChart";
 import AverageCartStatsCard from "@/components/admin/dashboard/AverageCartStatsCard";
 import ConversionRateCard from "@/components/admin/dashboard/ConversionRateCard";
 import OrdersByRegionChart from "@/components/admin/dashboard/OrdersByRegionChart";
