@@ -33,7 +33,7 @@ import {
     getOrdersByRegion,
     getRatingStats,
     getAverageCartStats,
-    getProductImagesStats,
+    // getProductImagesStats,
     // getTopAttributes,
 } from "@/apis/stats";
 
@@ -93,7 +93,7 @@ const DashboardAdminPage = () => {
                 getOrdersByRegion(dateRange.fromDate, dateRange.toDate, "DELIVERED", "CITY"),
                 getRatingStats(dateRange.fromDate, dateRange.toDate, "product"),
                 getAverageCartStats(dateRange.fromDate, dateRange.toDate, 5),
-                getProductImagesStats(dateRange.fromDate, dateRange.toDate, false),
+                // getProductImagesStats(dateRange.fromDate, dateRange.toDate, false),
                 // getTopAttributes(dateRange.fromDate, dateRange.toDate, 5),
             ]);
 
@@ -110,7 +110,7 @@ const DashboardAdminPage = () => {
                 ordersByRegion: ordersByRegionRes.data,
                 ratingStats: ratingStatsRes.data,
                 averageCartStats: averageCartRes.data,
-                productImagesStats: productImagesRes.data,
+                // productImagesStats: productImagesRes.data,
                 // topAttributes: topAttributesRes.data,
             });
         } catch (err) {
@@ -203,7 +203,7 @@ const DashboardAdminPage = () => {
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                 <ProductCategoryChart productsByCategory={statsData.productsByCategory} />
                                 {/* <TopAttributesChart topAttributes={statsData.topAttributes} /> */}
-                                <ProductImagesStatsChart productImagesStats={statsData.productImagesStats} />
+                                {/* <ProductImagesStatsChart productImagesStats={statsData.productImagesStats} /> */}
                             </div>
                         </section>
 
